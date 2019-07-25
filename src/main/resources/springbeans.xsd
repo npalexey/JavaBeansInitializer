@@ -1,0 +1,1200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.springframework.org/schema/beans">
+
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+
+    <xs:annotation>
+        <xs:documentation><![CDATA[
+	Spring XML Beans Schema, version 4.3
+	Authors: Juergen Hoeller, Rob Harrop, Mark Fisher, Chris Beams
+
+	This defines a simple and consistent way of creating a namespace
+	of JavaBeans objects, managed by a Spring BeanFactory, read by
+	XmlBeanDefinitionReader (with DefaultBeanDefinitionDocumentReader).
+
+	This document type is used by most Spring functionality, including
+	web application contexts, which are based on bean factories.
+
+	Each "bean" element in this document defines a JavaBean.
+	Typically the bean class is specified, along with JavaBean properties
+	and/or constructor arguments.
+
+	A bean instance can be a "singleton" (shared instance) or a "prototype"
+	(independent instance). Further scopes can be provided by extended
+	bean factories, for example in a web environment.
+
+	References among beans are supported, that is, setting a JavaBean property
+	or a constructor argument to refer to another bean in the same factory
+	(or an ancestor factory).
+
+	As alternative to bean references, "inner bean definitions" can be used.
+	Such inner beans do not have an independent lifecycle; they are typically
+	anonymous nested objects that share the scope of their containing bean.
+
+	There is also support for lists, sets, maps, and java.util.Properties
+	as bean property types or constructor argument types.
+		]]></xs:documentation>
+    </xs:annotation>
+
+    <!-- base types -->
+    <xs:complexType name="identifiedType" abstract="true">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	The unique identifier for a bean. The scope of the identifier
+	is the enclosing bean factory.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The unique identifier for a bean. A bean id may not be used more than once
+	within the same <beans> element.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Top-level <beans> tag -->
+    <xs:element name="beans">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Container for <bean> and other elements, typically the root element in the document.
+	Allows the definition of default values for all nested bean definitions. May itself
+	be nested for the purpose of defining a subset of beans with certain default values or
+	to be registered only when certain profile(s) are active. Any such nested <beans> element
+	must be declared as the last element in the document.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="description" minOccurs="0"/>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="import"/>
+                    <xs:element ref="alias"/>
+                    <xs:element ref="bean"/>
+                    <xs:any namespace="##other" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+                <xs:element ref="beans" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="profile" use="optional" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The set of profiles for which this <beans> element should be parsed. Multiple profiles
+	can be separated by spaces, commas, or semi-colons.
+
+	If one or more of the specified profiles are active at time of parsing, the <beans>
+	element will be parsed, and all of its <bean> elements registered, &lt;import&gt;
+	elements followed, etc.  If none of the specified profiles are active at time of
+	parsing, then the entire element and its contents will be ignored.
+
+	If a profile is prefixed with the NOT operator '!', e.g.
+
+		<beans profile="p1,!p2">
+
+	indicates that the <beans> element should be parsed if profile "p1" is active or
+	if profile "p2" is not active.
+
+	Profiles are activated in one of two ways:
+		Programmatic:
+			ConfigurableEnvironment#setActiveProfiles(String...)
+			ConfigurableEnvironment#setDefaultProfiles(String...)
+
+		Properties (typically through -D system properties, environment variables, or
+		servlet context init params):
+			spring.profiles.active=p1,p2
+			spring.profiles.default=p1,p2
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="default-lazy-init" default="default" type="defaultable-boolean">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The default 'lazy-init' value; see the documentation for the
+	'lazy-init' attribute of the 'bean' element. The default is "default",
+	indicating inheritance from outer 'beans' sections in case of nesting,
+	otherwise falling back to "false".
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="default-merge" default="default" type="defaultable-boolean">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The default 'merge' value; see the documentation for the 'merge'
+	attribute of the various collection elements. The default is "default",
+	indicating inheritance from outer 'beans' sections in case of nesting,
+	otherwise falling back to "false".
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="default-autowire" default="default">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The default 'autowire' value; see the documentation for the
+	'autowire' attribute of the 'bean' element. The default is "default",
+	indicating inheritance from outer 'beans' sections in case of nesting,
+	otherwise falling back to "no" (i.e. no externally driven autowiring).
+					]]></xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:NMTOKEN">
+                        <xs:enumeration value="default"/>
+                        <xs:enumeration value="no"/>
+                        <xs:enumeration value="byName"/>
+                        <xs:enumeration value="byType"/>
+                        <xs:enumeration value="constructor"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="default-autowire-candidates" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	A default bean name pattern for identifying autowire candidates:
+	e.g. "*Service", "data*", "*Service*", "data*Service".
+	Also accepts a comma-separated list of patterns: e.g. "*Service,*Dao".
+	See the documentation for the 'autowire-candidate' attribute of the
+	'bean' element for the semantic details of autowire candidate beans.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="default-init-method" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The default 'init-method' value; see the documentation for the
+	'init-method' attribute of the 'bean' element.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="default-destroy-method" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The default 'destroy-method' value; see the documentation for the
+	'destroy-method' attribute of the 'bean' element.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:anyAttribute namespace="##other" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="description">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Contains informative text describing the purpose of the enclosing element.
+	Used primarily for user documentation of XML bean definition documents.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="import">
+        <xs:annotation>
+            <xs:documentation source="java:org.springframework.core.io.Resource"><![CDATA[
+	Specifies an XML bean definition resource to import.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:attribute name="resource" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The relative resource location of the XML (bean definition) file to import,
+	for example "myImport.xml" or "includes/myImport.xml" or "../myImport.xml".
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="alias">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Defines an alias for a bean (which can reside in a different definition
+	resource).
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:attribute name="name" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the bean to define an alias for.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="alias" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The alias name to define for the bean.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:group name="beanElements">
+        <xs:sequence>
+            <xs:element ref="description" minOccurs="0"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="meta"/>
+                <xs:element ref="constructor-arg"/>
+                <xs:element ref="property"/>
+                <xs:element ref="qualifier"/>
+                <xs:element ref="lookup-method"/>
+                <xs:element ref="replaced-method"/>
+                <xs:any namespace="##other" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:attributeGroup name="beanAttributes">
+        <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Can be used to create one or more aliases illegal in an (XML) id.
+	Multiple aliases can be separated by any number of spaces, commas,
+	or semi-colons (or indeed any mixture of the three).
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="class" type="xs:string">
+            <xs:annotation>
+                <xs:documentation source="java:java.lang.Class"><![CDATA[
+	The fully qualified name of the bean's class, except if it serves only
+	as a parent definition for child bean definitions.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="parent" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The name of the parent bean definition.
+
+	Will use the bean class of the parent if none is specified, but can
+	also override it. In the latter case, the child bean class must be
+	compatible with the parent, i.e. accept the parent's property values
+	and constructor argument values, if any.
+
+	A child bean definition will inherit constructor argument values,
+	property values and method overrides from the parent, with the option
+	to add new values. If init method, destroy method, factory bean and/or
+	factory method are specified, they will override the corresponding
+	parent settings.
+
+	The remaining settings will always be taken from the child definition:
+	depends on, autowire mode, scope, lazy init.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="scope" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The scope of this bean: typically "singleton" (one shared instance,
+	which will be returned by all calls to getBean with the given id), or
+	"prototype" (independent instance resulting from each call to getBean).
+
+	By default, a bean will be a singleton, unless the bean has a parent
+	bean definition in which case it will inherit the parent's scope.
+
+	Singletons are most commonly used, and are ideal for multi-threaded
+	service objects. Further scopes, such as "request" or "session", might
+	be supported by extended bean factories (e.g. in a web environment).
+
+	Inner bean definitions inherit the scope of their containing bean
+	definition, unless explicitly specified: The inner bean will be a
+	singleton if the containing bean is a singleton, and a prototype if
+	the containing bean is a prototype, etc.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="abstract" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Is this bean "abstract", that is, not meant to be instantiated itself
+	but rather just serving as parent for concrete child bean definitions?
+	The default is "false". Specify "true" to tell the bean factory to not
+	try to instantiate that particular bean in any case.
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per abstract bean definition.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="lazy-init" default="default" type="defaultable-boolean">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Indicates whether this bean is to be lazily initialized. If "false",
+	it will be instantiated on startup by bean factories that perform eager
+	initialization of singletons. The effective default is "false".
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per concrete bean definition. It can be
+	shared through the 'default-lazy-init' attribute at the 'beans' level
+	and potentially inherited from outer 'beans' defaults in case of nested
+	'beans' sections (e.g. with different profiles).
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="autowire" default="default">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Controls whether bean properties are "autowired".
+	This is an automagical process in which bean references don't need
+	to be coded explicitly in the XML bean definition file, but rather the
+	Spring container works out dependencies. The effective default is "no".
+
+	There are 4 modes:
+
+	1. "no"
+	The traditional Spring default. No automagical wiring. Bean references
+	must be defined in the XML file via the <ref/> element (or "ref"
+	attribute). We recommend this in most cases as it makes documentation
+	more explicit.
+
+	Note that this default mode also allows for annotation-driven autowiring,
+	if activated. "no" refers to externally driven autowiring only, not
+	affecting any autowiring demands that the bean class itself expresses.
+
+	2. "byName"
+	Autowiring by property name. If a bean of class Cat exposes a "dog"
+	property, Spring will try to set this to the value of the bean "dog"
+	in the current container. If there is no matching bean by name, nothing
+	special happens.
+
+	3. "byType"
+	Autowiring if there is exactly one bean of the property type in the
+	container. If there is more than one, a fatal error is raised, and
+	you cannot use byType autowiring for that bean. If there is none,
+	nothing special happens.
+
+	4. "constructor"
+	Analogous to "byType" for constructor arguments. If there is not exactly
+	one bean of the constructor argument type in the bean factory, a fatal
+	error is raised.
+
+	Note that explicit dependencies, i.e. "property" and "constructor-arg"
+	elements, always override autowiring.
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per concrete bean definition. It can be
+	shared through the 'default-autowire' attribute at the 'beans' level
+	and potentially inherited from outer 'beans' defaults in case of nested
+	'beans' sections (e.g. with different profiles).
+				]]></xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:NMTOKEN">
+                    <xs:enumeration value="default"/>
+                    <xs:enumeration value="no"/>
+                    <xs:enumeration value="byName"/>
+                    <xs:enumeration value="byType"/>
+                    <xs:enumeration value="constructor"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="depends-on" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The names of the beans that this bean depends on being initialized.
+	The bean factory will guarantee that these beans get initialized
+	before this bean.
+
+	Note that dependencies are normally expressed through bean properties
+	or constructor arguments. This property should just be necessary for
+	other kinds of dependencies like statics (*ugh*) or database preparation
+	on startup.
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per concrete bean definition.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="autowire-candidate" default="default" type="defaultable-boolean">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Indicates whether or not this bean should be considered when looking
+	for matching candidates to satisfy another bean's autowiring requirements.
+	Note that this does not affect explicit references by name, which will get
+	resolved even if the specified bean is not marked as an autowire candidate.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="primary" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Specifies that this bean should be given preference when multiple
+	candidates are qualified to autowire a single-valued dependency.
+	If exactly one 'primary' bean exists among the candidates, it
+	will be the autowired value.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="init-method" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The name of the custom initialization method to invoke after setting
+	bean properties. The method must have no arguments, but may throw any
+	exception.
+
+	This is an alternative to implementing Spring's InitializingBean
+	interface or marking a method with the PostConstruct annotation.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="destroy-method" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The name of the custom destroy method to invoke on bean factory shutdown.
+	The method must have no arguments, but may throw any exception.
+
+	This is an alternative to implementing Spring's DisposableBean
+	interface or the standard Java Closeable/AutoCloseable interface,
+	or marking a method with the PreDestroy annotation.
+
+	Note: Only invoked on beans whose lifecycle is under the full
+	control of the factory - which is always the case for singletons,
+	but not guaranteed for any other scope.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="factory-method" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The name of a factory method to use to create this object. Use
+	constructor-arg elements to specify arguments to the factory method,
+	if it takes arguments. Autowiring does not apply to factory methods.
+
+	If the "class" attribute is present, the factory method will be a static
+	method on the class specified by the "class" attribute on this bean
+	definition. Often this will be the same class as that of the constructed
+	object - for example, when the factory method is used as an alternative
+	to a constructor. However, it may be on a different class. In that case,
+	the created object will *not* be of the class specified in the "class"
+	attribute. This is analogous to FactoryBean behavior.
+
+	If the "factory-bean" attribute is present, the "class" attribute is not
+	used, and the factory method will be an instance method on the object
+	returned from a getBean call with the specified bean name. The factory
+	bean may be defined as a singleton or a prototype.
+
+	The factory method can have any number of arguments. Autowiring is not
+	supported. Use indexed constructor-arg elements in conjunction with the
+	factory-method attribute.
+
+	Setter Injection can be used in conjunction with a factory method.
+	Method Injection cannot, as the factory method returns an instance,
+	which will be used when the container creates the bean.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="factory-bean" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Alternative to class attribute for factory-method usage.
+	If this is specified, no class attribute should be used.
+	This must be set to the name of a bean in the current or
+	ancestor factories that contains the relevant factory method.
+	This allows the factory itself to be configured using Dependency
+	Injection, and an instance (rather than static) method to be used.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:attributeGroup>
+
+    <xs:element name="meta" type="metaType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Arbitrary metadata attached to a bean definition.
+			]]></xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="metaType">
+        <xs:attribute name="key" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The key name of the metadata attribute being defined.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The value of the metadata attribute being defined (as a simple String).
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="bean">
+        <xs:annotation>
+            <xs:documentation source="java:org.springframework.beans.factory.config.BeanDefinition"><![CDATA[
+	Defines a single (usually named) bean.
+
+	A bean definition may contain nested tags for constructor arguments,
+	property values, lookup methods, and replaced methods. Mixing constructor
+	injection and setter injection on the same bean is explicitly supported.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="identifiedType">
+                    <xs:group ref="beanElements"/>
+                    <xs:attributeGroup ref="beanAttributes"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="constructor-arg">
+        <xs:annotation>
+            <xs:documentation source="java:org.springframework.beans.factory.config.ConstructorArgumentValues">
+                <![CDATA[
+	Bean definitions can specify zero or more constructor arguments.
+	This is an alternative to "autowire constructor".
+	Arguments correspond to either a specific index of the constructor
+	argument list or are supposed to be matched generically by type.
+
+	Note: A single generic argument value will just be used once, rather
+	than potentially matched multiple times (as of Spring 1.1).
+
+	constructor-arg elements are also used in conjunction with the
+	factory-method element to construct beans using static or instance
+	factory methods.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="description" minOccurs="0"/>
+                <xs:choice minOccurs="0" maxOccurs="1">
+                    <xs:element ref="bean"/>
+                    <xs:element ref="ref"/>
+                    <xs:element ref="idref"/>
+                    <xs:element ref="value"/>
+                    <xs:element ref="null"/>
+                    <xs:element ref="array"/>
+                    <xs:element ref="list"/>
+                    <xs:element ref="set"/>
+                    <xs:element ref="map"/>
+                    <xs:element ref="props"/>
+                    <xs:any namespace="##other" processContents="strict"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="index" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The exact index of the argument in the constructor argument list.
+	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
+	the exact same type.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="type" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The exact type of the constructor argument. Only needed to avoid
+	ambiguities, e.g. in case of 2 single argument constructors
+	that can both be converted from a String.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The exact name of the argument in the constructor argument list.
+	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
+	the exact same type. Note: This requires debug symbols to be
+	stored in the class file in order to introspect argument names!
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="ref" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<ref bean='...'/>" element.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="value" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<value>...<value/>" element.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="property" type="propertyType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Bean definitions can have zero or more properties.
+	Property elements correspond to JavaBean setter methods exposed
+	by the bean classes. Spring supports primitives, references to other
+	beans in the same or related factories, lists, maps and properties.
+			]]></xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="qualifier">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Bean definitions can provide qualifiers to match against annotations
+	on a field or parameter for fine-grained autowire candidate resolution.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string" default="org.springframework.beans.factory.annotation.Qualifier"/>
+            <xs:attribute name="value" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="attribute" type="metaType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A qualifier element may contain attribute child elements as key-value
+	pairs. These will be available for matching against attributes of a
+	qualifier annotation on an autowired field or parameter if present.
+			]]></xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="lookup-method">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A lookup method causes the IoC container to override the given method
+	and return the bean with the name given in the bean attribute. This is
+	a form of Method Injection. It is particularly useful as an alternative
+	to implementing the BeanFactoryAware interface, in order to be able to
+	make getBean() calls for non-singleton instances at runtime. In this
+	case, Method Injection is a less invasive alternative.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:attribute name="name" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the lookup method. This method may have arguments which
+	will be passed on to the target constructor or factory method. Note
+	that for backwards compatibility reasons, in a scenario with overloaded
+	non-abstract methods of the given name, only the no-arg variant of a
+	method will be turned into a container-driven lookup method.
+	Consider using the @Lookup annotation for more specific demarcation.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="bean" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the bean in the current or ancestor factories that
+	the lookup method should resolve to. Usually this bean will be a
+	prototype, in which case the lookup method will return a distinct
+	instance on every invocation. If not specified, the lookup method's
+	return type will be used for a type-based lookup.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="replaced-method">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Similar to the lookup method mechanism, the replaced-method element
+	is used to control IoC container method overriding: Method Injection.
+	This mechanism allows the overriding of a method with arbitrary code.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="arg-type"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The name of the method whose implementation must be replaced by the
+	IoC container. If this method is not overloaded, there is no need
+	to use arg-type subelements. If this method is overloaded, arg-type
+	subelements must be used for all override definitions for the method.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="replacer" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="java:org.springframework.beans.factory.support.MethodReplacer"><![CDATA[
+	Bean name of an implementation of the MethodReplacer interface in the
+	current or ancestor factories. This may be a singleton or prototype
+	bean. If it is a prototype, a new instance will be used for each
+	method replacement. Singleton usage is the norm.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="arg-type">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Identifies an argument for a replaced method in the event of
+	method overloading.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded"/>
+            <xs:attribute name="match" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	Specification of the type of an overloaded method argument as a String.
+	For convenience, this may be a substring of the FQN. E.g. all the
+	following would match "java.lang.String":
+	- java.lang.String
+	- String
+	- Str
+
+	As the number of arguments will be checked also, this convenience
+	can often be used to save typing.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ref">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Defines a reference to another bean in this factory or an external
+	factory (parent or included factory).
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:attribute name="bean" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the referenced bean.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="parent" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the referenced bean in a parent factory.
+						]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="idref">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	The id of another bean in this factory or an external factory
+	(parent or included factory).
+	While a regular 'value' element could instead be used for the
+	same effect, using idref indicates that the Spring container
+	should check that the value actually corresponds to a bean id.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:attribute name="bean" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	The name of the referenced bean.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="value">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Contains a string representation of a property value.
+	The property may be a string, or may be converted to the required
+	type using the JavaBeans PropertyEditor machinery. This makes it
+	possible for application developers to write custom PropertyEditor
+	implementations that can convert strings to arbitrary target objects.
+
+	Note that this is recommended for simple objects only. Configure
+	more complex objects by populating JavaBean properties with
+	references to other beans.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded"/>
+            <xs:attribute name="type" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The exact type that the value should be converted to. Only needed
+	if the type of the target property or constructor argument is
+	too generic: for example, in case of a collection element.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="null">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Denotes a Java null value. Necessary because an empty "value" tag
+	will resolve to an empty String, which will not be resolved to a
+	null value unless a special PropertyEditor does so.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Collection Elements -->
+    <xs:group name="collectionElements">
+        <xs:sequence>
+            <xs:element ref="description" minOccurs="0"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="bean"/>
+                <xs:element ref="ref"/>
+                <xs:element ref="idref"/>
+                <xs:element ref="value"/>
+                <xs:element ref="null"/>
+                <xs:element ref="array"/>
+                <xs:element ref="list"/>
+                <xs:element ref="set"/>
+                <xs:element ref="map"/>
+                <xs:element ref="props"/>
+                <xs:any namespace="##other" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:element name="array">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	An array can contain multiple inner bean, ref, collection, or value elements.
+	This configuration element will always result in an array, even when being
+	defined e.g. as a value for a map with value type Object.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="listOrSetType">
+                    <xs:attribute name="merge" default="default" type="defaultable-boolean">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	Enables/disables merging for collections when using parent/child beans.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="list">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A list can contain multiple inner bean, ref, collection, or value elements.
+	A list can also map to an array type; the necessary conversion is performed
+	automatically.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="listOrSetType">
+                    <xs:attribute name="merge" default="default" type="defaultable-boolean">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	Enables/disables merging for collections when using parent/child beans.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="set">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A set can contain multiple inner bean, ref, collection, or value elements.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="listOrSetType">
+                    <xs:attribute name="merge" default="default" type="defaultable-boolean">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	Enables/disables merging for collections when using parent/child beans.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="map">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A mapping from a key to an object. Maps may be empty.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="mapType">
+                    <xs:attribute name="merge" default="default" type="defaultable-boolean">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	Enables/disables merging for collections when using parent/child beans.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="entry" type="entryType">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A map entry can be an inner bean, ref, value, or collection.
+	The key of the entry is given by the "key" attribute or child element.
+			]]></xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="props">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	Props elements differ from map elements in that values must be strings.
+	Props may be empty.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="propsType">
+                    <xs:attribute name="merge" default="default" type="defaultable-boolean">
+                        <xs:annotation>
+                            <xs:documentation><![CDATA[
+	Enables/disables merging for collections when using parent/child beans.
+							]]></xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="key">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	A key element can contain an inner bean, ref, value, or collection.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:group ref="collectionElements"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="prop">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+	The string value of the property. Note that whitespace is trimmed
+	off to avoid unwanted whitespace caused by typical XML formatting.
+			]]></xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded"/>
+            <xs:attribute name="key" type="xs:string" use="required">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[
+	The key of the property entry.
+					]]></xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="propertyType">
+        <xs:sequence>
+            <xs:element ref="description" minOccurs="0"/>
+            <xs:choice minOccurs="0" maxOccurs="1">
+                <xs:element ref="meta"/>
+                <xs:element ref="bean"/>
+                <xs:element ref="ref"/>
+                <xs:element ref="idref"/>
+                <xs:element ref="value"/>
+                <xs:element ref="null"/>
+                <xs:element ref="array"/>
+                <xs:element ref="list"/>
+                <xs:element ref="set"/>
+                <xs:element ref="map"/>
+                <xs:element ref="props"/>
+                <xs:any namespace="##other" processContents="strict"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	The name of the property, following JavaBean naming conventions.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ref" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<ref bean='...'/>".
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<value>...</value>" element.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Collection Types -->
+
+    <!-- base type for collections that have (possibly) typed nested values -->
+    <xs:complexType name="collectionType">
+        <xs:attribute name="value-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation source="java:java.lang.Class"><![CDATA[
+	The default Java type for nested values. Must be a fully qualified
+	class name.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- 'list' and 'set' collection type -->
+    <xs:complexType name="listOrSetType">
+        <xs:complexContent>
+            <xs:extension base="collectionType">
+                <xs:group ref="collectionElements"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- 'map' element type -->
+    <xs:complexType name="mapType">
+        <xs:complexContent>
+            <xs:extension base="collectionType">
+                <xs:sequence>
+                    <xs:element ref="description" minOccurs="0"/>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="entry"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="key-type" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation source="java:java.lang.Class"><![CDATA[
+	The default Java type for nested entry keys. Must be a fully qualified
+	class name.
+						]]></xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- 'entry' element type -->
+    <xs:complexType name="entryType">
+        <xs:sequence>
+            <xs:element ref="key" minOccurs="0"/>
+            <xs:group ref="collectionElements"/>
+        </xs:sequence>
+        <xs:attribute name="key" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	Each map element must specify its key as attribute or as child element.
+	A key attribute is always a String value.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="key-ref" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a to a "key" element with a nested
+	"<ref bean='...'/>".
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<value>...</value>"
+	element.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value-ref" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a nested "<ref bean='...'/>".
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation><![CDATA[
+	A short-cut alternative to a 'type' attribute on a nested
+	"<value type='...' >...</value>" element.
+				]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- 'props' collection type -->
+    <xs:complexType name="propsType">
+        <xs:complexContent>
+            <xs:extension base="collectionType">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="prop"/>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- simple internal types -->
+    <xs:simpleType name="defaultable-boolean">
+        <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="default"/>
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
