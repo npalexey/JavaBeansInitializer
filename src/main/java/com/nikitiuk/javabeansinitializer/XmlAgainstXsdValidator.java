@@ -17,7 +17,7 @@ public class XmlAgainstXsdValidator {
     public static void main(String[] args) {
         String xml = "src/main/resources/beans.xml";
         String xsd = "src/main/resources/beans.xsd";
-        boolean isValid = validateXMLSchema(xsd,xml);
+        boolean isValid = validateXMLSchema(xml,xsd);
         if(isValid){
             logger.info("Xml" + " is VALID against " + "Xsd");
         } else {
@@ -25,7 +25,7 @@ public class XmlAgainstXsdValidator {
         }
     }
 
-    public static boolean validateXMLSchema(String xsdPath, String xmlPath){
+    public static boolean validateXMLSchema(String xmlPath, String xsdPath){
         try {
             SchemaFactory factory =
                     SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -33,10 +33,10 @@ public class XmlAgainstXsdValidator {
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new File(xmlPath)));
         } catch (IOException e){
-            logger.info("Exception: "+e.getMessage());
+            logger.error("Exception: "+e.getMessage());
             return false;
-        }catch(SAXException e1){
-            logger.info("SAX Exception: "+e1.getMessage());
+        } catch(SAXException e1){
+            logger.error("SAX Exception: "+e1.getMessage());
             return false;
         }
 

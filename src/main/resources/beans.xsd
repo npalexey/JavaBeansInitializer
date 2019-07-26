@@ -8,8 +8,8 @@
           <xs:documentation>optional</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element type="beanType" name="bean" maxOccurs="unbounded" minOccurs="0"/>
-      <xs:element type="mainType" name="main">
+      <xs:element type="beanType" name="bean" maxOccurs="unbounded" minOccurs="1"/>
+      <xs:element type="mainType" name="main" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>required, but should be only one</xs:documentation>
         </xs:annotation>
@@ -19,7 +19,7 @@
   <xs:complexType name="importType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="src" use="optional"/>
+        <xs:attribute type="xs:string" name="src" use="required"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -27,21 +27,21 @@
     <xs:sequence>
       <xs:element type="propertyType" name="property" maxOccurs="unbounded" minOccurs="0"/>
     </xs:sequence>
-    <xs:attribute type="xs:string" name="id" use="optional"/>
+    <xs:attribute type="xs:string" name="id" use="required"/>
     <xs:attribute type="xs:string" name="class" use="optional"/>
   </xs:complexType>
   <xs:complexType name="mainType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="bean"/>
-        <xs:attribute type="xs:string" name="method"/>
+        <xs:attribute type="xs:string" name="bean" use="required"/>
+        <xs:attribute type="xs:string" name="method" use="required"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
   <xs:complexType name="propertyType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:string" name="value" use="optional"/>
         <xs:attribute type="xs:string" name="ref" use="optional"/>
       </xs:extension>
