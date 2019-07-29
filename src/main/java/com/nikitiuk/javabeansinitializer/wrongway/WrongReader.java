@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer;
+package com.nikitiuk.javabeansinitializer.wrongway;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;

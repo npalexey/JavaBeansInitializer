@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer;
+package com.nikitiuk.javabeansinitializer.services;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,16 +14,15 @@ import org.xml.sax.SAXException;
 public class XmlAgainstXsdValidator {
     private static final Logger logger =  LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         String xml = "src/main/resources/beans.xml";
         String xsd = "src/main/resources/beans.xsd";
-        boolean isValid = validateXMLSchema(xml,xsd);
-        if(isValid){
+        if(validateXMLSchema(xml,xsd)){
             logger.info("Xml" + " is VALID against " + "Xsd");
         } else {
             logger.info("Xml" + " is NOT valid against " + "Xsd");
         }
-    }
+    }*/
 
     public static boolean validateXMLSchema(String xmlPath, String xsdPath){
         try {
@@ -35,7 +34,7 @@ public class XmlAgainstXsdValidator {
         } catch (IOException e){
             logger.error("Exception: "+e.getMessage());
             return false;
-        } catch(SAXException e1){
+        } catch (SAXException e1){
             logger.error("SAX Exception: "+e1.getMessage());
             return false;
         }

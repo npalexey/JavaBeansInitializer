@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer;
+package com.nikitiuk.javabeansinitializer.wrongway;
 
 import java.io.File;
 import java.io.FileWriter;

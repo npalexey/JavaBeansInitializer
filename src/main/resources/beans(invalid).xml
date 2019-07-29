@@ -2,8 +2,8 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="beans.xsd">
     <!-- optional -->
-    <!--<import src="classpath:/common/utils-beans.xml"/>
-    <import src="classpath:/common/service-beans.xml"/>-->
+    <import src="classpath:/common/utils-beans.xml"/>
+    <import src="classpath:/common/service-beans.xml"/>
     <bean id="executor" class="com.qlearsite.project.common.Executor" >
         <property name="poolSize" value="10" />
         <property name="executorListener" ref="eListener" />
@@ -11,5 +11,11 @@
 
     <bean id="eListener" class="" />
     <!-- required, but should be only one -->
-    <!--<main bean="executor" method="init" />-->
+    <main bean="" method="" />
+    <beans2>
+        <bean id="executor2" class="com.qlearsite.project.common.Executor" >
+            <property name="poolSize" value="16" />
+            <property name="executorListener2" ref="eListener" />
+        </bean>
+    </beans2>
 </beans>

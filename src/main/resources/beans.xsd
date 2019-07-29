@@ -9,7 +9,7 @@
         </xs:annotation>
       </xs:element>
       <xs:element type="beanType" name="bean" maxOccurs="unbounded" minOccurs="1"/>
-      <xs:element type="mainType" name="main" maxOccurs="1">
+      <xs:element type="mainType" name="main" maxOccurs="1" minOccurs="0">
         <xs:annotation>
           <xs:documentation>required, but should be only one</xs:documentation>
         </xs:annotation>
