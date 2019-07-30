@@ -26,12 +26,12 @@ public class XmlCollectedBeans {
         }
     }
 
-    public Map<String, BeanMapper> getBeanCollectionsList() {
+    public Map<String, BeanMapper> getBeanCollectionsMap() {
         return beanCollectionsMap;
     }
 
-    public void setBeanCollectionsList(Map<String, BeanMapper> beanCollectionsList) {
-        this.beanCollectionsMap = beanCollectionsList;
+    public void setBeanCollectionsMap(Map<String, BeanMapper> beanCollectionsMap) {
+        this.beanCollectionsMap = beanCollectionsMap;
     }
 
     public ArrayList<String> getImports() {

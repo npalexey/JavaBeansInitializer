@@ -83,7 +83,7 @@ public class Reader {
         //logger.info(mainMethodMap.toString());
         xmlCollectedBeans.setImports(importsList);
         xmlCollectedBeans.setMainMethodMap(mainMethodMap);
-        xmlCollectedBeans.setBeanCollectionsList(beanCollectionsMap);
+        xmlCollectedBeans.setBeanCollectionsMap(beanCollectionsMap);
         return xmlCollectedBeans;
     }
 
