@@ -17,6 +17,6 @@ public class ResourceBean {
     }
 
     public void someInitMethod(){
-        System.out.println("That's a resource's main method invoked");
+        System.out.println("That's a resource's main method invoked;");
     }
 }

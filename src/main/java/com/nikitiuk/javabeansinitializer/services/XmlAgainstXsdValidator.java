@@ -38,7 +38,6 @@ public class XmlAgainstXsdValidator {
             logger.error("SAX Exception: "+e1.getMessage());
             return false;
         }
-
         return true;
     }
 }

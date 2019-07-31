@@ -8,6 +8,7 @@
         <property name="name" value="Executor" />
         <property name="cityOfResidence" value="Odessa" />
         <property name="boss" ref="eBoss" />
+        <property name="job" value="ExecutorOfThings" />
     </bean>
 
     <bean id="eBoss" class="com.nikitiuk.javabeansinitializer.beans.Person" >
@@ -15,6 +16,7 @@
         <property name="cityOfResidence" value="Kyiv" />
         <property name="salary" value="2415" />
         <property name="wealthy" value="true" />
+        <property name="job" value="Bossing The Executor" />
     </bean>
 
     <!-- required, but should be only one -->

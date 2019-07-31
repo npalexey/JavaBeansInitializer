@@ -38,10 +38,10 @@ public class Person {
     }
 
     public void init(){
-        System.out.println("Now invoking main method of Person...");
+        System.out.println("Now invoking main method of Person...:");
         System.out.println(name + " lives in " + cityOfResidence);
         if(boss != null){
-            System.out.println("And his boss is " + boss.name);
+            System.out.println("And his boss is " + boss.name + ";");
         }
     }
 

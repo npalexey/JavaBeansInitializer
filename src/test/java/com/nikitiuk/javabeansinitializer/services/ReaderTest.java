@@ -15,7 +15,7 @@ class ReaderTest {
     @BeforeAll
     public static void setLogger() throws Exception
     {
-        logger = LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
+        logger = LoggerFactory.getLogger(Reader.class);
     }
 
     @Test
