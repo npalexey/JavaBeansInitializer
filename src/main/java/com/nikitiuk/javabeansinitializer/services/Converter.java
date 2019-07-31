@@ -23,11 +23,11 @@ public class Converter {
         testList.add(testS5);
         testList.add(testS6);
         for (String el: testList) {
-            //if(convertAndGetValue(el) == null){
-                //logger.info("null");
-            //} else {
-                logger.info( convertAndGetValuePlusType(el).toString());
-            //}
+            if(getTypeOfVariable(el) == null){
+                logger.info("null");
+            } else {
+                logger.info(getTypeOfVariable(el).toString());
+            }
         }
 
     }
@@ -48,10 +48,28 @@ public class Converter {
         } else {
             return s;
         }
-        //throw new IllegalArgumentException("Don't know how to convert " + s);
     }
 
-    public static Map<Class<?>, Object> convertAndGetValuePlusType(String s){
+    public static Class<?> getTypeOfVariable(String s){
+        if (s.equals("null")) {
+            return Object.class;
+        } else if (NumberUtils.isParsable(s)){
+            try (Scanner scanner = new Scanner(s)) {
+                if (scanner.hasNextInt()) {
+                    return Integer.class;
+                } else {
+                    return Double.class;
+                }
+            }
+        } else if (s.equals("true") || s.equals("false")){
+            return Boolean.class;
+        } else {
+            return String.class;
+        }
+
+    }
+
+    public static Map<Class<?>, Object> convertAndGetTypePlusValue(String s){
         Map<Class<?>, Object> convMap = new HashMap<>();
         if (s.equals("null")) {
             convMap.put(Object.class, null);
@@ -69,6 +87,5 @@ public class Converter {
             convMap.put(String.class, s);
         }
         return convMap;
-        //throw new IllegalArgumentException("Don't know how to convert " + s);
     }
 }
