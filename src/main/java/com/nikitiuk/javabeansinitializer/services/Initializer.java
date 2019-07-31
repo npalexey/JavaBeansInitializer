@@ -5,7 +5,6 @@ import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NodeList;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -21,23 +20,39 @@ public class Initializer {
             NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
             XmlCollectedBeans xmlCollectedBeans = Reader.getXmlCollectedBeansFromNodeList(nodeList);
             Map<String,Object> beans = createObjectsFromBeanData(xmlCollectedBeans);
-            //logger.info(beans.toString());
             loopToChangeNowUsedForWiring(beans, xmlCollectedBeans);
-            logger.info(xmlCollectedBeans.toString());
+            initializeMainMethod(beans, xmlCollectedBeans);
+            //logger.info(xmlCollectedBeans.toString());
+            logger.info(beans.toString());
         } catch (Exception e){
             logger.error("Exception caught: " + e);
         }
     }
 
+    public static Map<String, Object> initializeBeans(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+        try {
+            Map<String,Object> beans = createObjectsFromBeanData(xmlCollectedBeans);
+            loopToChangeNowUsedForWiring(beans, xmlCollectedBeans);
+            initializeMainMethod(beans, xmlCollectedBeans);
+            //logger.info(xmlCollectedBeans.toString());
+            return beans;
+        } catch (Exception e){
+            logger.error("Exception caught: " + e);
+            throw e;
+        }
+    }
+
     public static Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         Map<String, Object> beanObjects = new HashMap<>();
+        if(xmlCollectedBeans.getImports() != null){
+            for(String importString : xmlCollectedBeans.getImports()){
+                beanObjects.putAll(initializeBeans(Reader.readXmlAndGetXmlCollectedBeans("/beans/*", importString)));
+            }
+        }
         for(Map.Entry<String, BeanMapper> mapperEntry : xmlCollectedBeans.getBeanCollectionsMap().entrySet()){
             try {
                 Class<?> beanClass = Class.forName(mapperEntry.getValue().getAttributesMap().get("class").toString());
                 Object bean = insertBeanProperties(mapperEntry.getValue().getPropertiesMap(), beanClass.getDeclaredConstructor().newInstance());
-                //List<String> idAndNumber = new ArrayList<>();
-                //idAndNumber.add(0, mapperEntry.getValue().getAttributesMap().get("id").toString());
-                //idAndNumber.add(1, mapperEntry.getKey());
                 beanObjects.put(mapperEntry.getValue().getAttributesMap().get("id").toString(), bean);
             }
             catch (Exception ex){
@@ -93,6 +108,17 @@ public class Initializer {
             setWiring.invoke(beanWhereToInsertWiring, beanToWire);
         } catch (Exception e){
             logger.error("Exception caught while wiring beans: " + e);
+        }
+    }
+
+    public static void initializeMainMethod(Map<String, Object> beans, XmlCollectedBeans xmlCollectedBeans) {
+        try{
+            Map<String, String> mainMethodMap = xmlCollectedBeans.getMainMethodMap();
+            Object beanWhoseMainMethodWillBeInitialized = beans.get(mainMethodMap.get("bean"));
+            Method mainMethod = beanWhoseMainMethodWillBeInitialized.getClass().getDeclaredMethod(mainMethodMap.get("method"));
+            mainMethod.invoke(beanWhoseMainMethodWillBeInitialized);
+        } catch (Exception e){
+            logger.error("Exception caught while initializing main method: " + e);
         }
     }
 }

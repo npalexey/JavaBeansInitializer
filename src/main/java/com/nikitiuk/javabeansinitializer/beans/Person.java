@@ -37,6 +37,15 @@ public class Person {
         }
     }
 
+    public void init(){
+        System.out.println("Invoking main method of Person...");
+        System.out.println(name + " lives in " + cityOfResidence);
+        if(boss != null){
+            System.out.println("And his boss is " + boss.name);
+        }
+
+    }
+
     public String getName() {
         return name;
     }

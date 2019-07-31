@@ -36,6 +36,16 @@ public class Reader {
         }
     }*/
 
+    public static XmlCollectedBeans readXmlAndGetXmlCollectedBeans(String expression, String pathToXml) throws Exception{
+        try {
+            NodeList nodeList = parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
+            return getXmlCollectedBeansFromNodeList(nodeList);
+        } catch (Exception e){
+            logger.error("Exception caught: " + e);
+            throw e;
+        }
+    }
+
     public static NodeList parseXmlFileIntoNodeListByCertainExpression(String expression, String pathToXml) throws Exception{
         try {
             FileInputStream fileIS = new FileInputStream(new File(pathToXml));

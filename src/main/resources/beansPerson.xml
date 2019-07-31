@@ -2,8 +2,8 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="beans.xsd">
     <!-- optional -->
-    <import src="classpath:/common/utils-beans.xml"/>
-    <import src="classpath:/common/service-beans.xml"/>
+    <import src="src/main/resources/beans-resources.xml"/>
+    <!--<import src="classpath:/common/service-beans.xml"/>-->
     <bean id="executor" class="com.nikitiuk.javabeansinitializer.beans.Person" >
         <property name="name" value="Executor" />
         <property name="cityOfResidence" value="Odessa" />
