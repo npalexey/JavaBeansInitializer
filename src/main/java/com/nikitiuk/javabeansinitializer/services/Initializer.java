@@ -13,7 +13,7 @@ import java.util.Map;
 public class Initializer {
     private static final Logger logger =  LoggerFactory.getLogger(Initializer.class);
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         try {
             String expression = "/beans/*";
             String pathToXml = "src/main/resources/beansPerson.xml";
@@ -27,7 +27,7 @@ public class Initializer {
         } catch (Exception e){
             logger.error("Exception caught: " + e);
         }
-    }
+    }*/
 
     public static Map<String, Object> initializeBeans(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         try {
@@ -45,9 +45,7 @@ public class Initializer {
     public static Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         Map<String, Object> beanObjects = new HashMap<>();
         if(xmlCollectedBeans.getImports() != null){
-            for(String importString : xmlCollectedBeans.getImports()){
-                beanObjects.putAll(initializeBeans(Reader.readXmlAndGetXmlCollectedBeans("/beans/*", importString)));
-            }
+            beanObjects.putAll(getOtherBeansFromImports(xmlCollectedBeans));
         }
         for(Map.Entry<String, BeanMapper> mapperEntry : xmlCollectedBeans.getBeanCollectionsMap().entrySet()){
             try {
@@ -60,6 +58,19 @@ public class Initializer {
             }
         }
         return beanObjects;
+    }
+
+    private static Map<String, Object> getOtherBeansFromImports(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+        try{
+            Map<String, Object> beanObjects = new HashMap<>();
+            for(String importString : xmlCollectedBeans.getImports()){
+                beanObjects.putAll(initializeBeans(Reader.readXmlAndGetXmlCollectedBeans("/beans/*", importString)));
+            }
+            return beanObjects;
+        } catch (Exception e){
+            logger.error("Exception caught during importing additional beans: " + e);
+            throw e;
+        }
     }
 
     private static Object insertBeanProperties(Map<String,Map<String,String>> propertiesMap, Object bean) throws Exception{

@@ -13,7 +13,7 @@ public class ResourceBean {
 
     @Override
     public String toString() {
-        return "Resource bean name: " + name;
+        return "Resource Bean Name: " + name;
     }
 
     public void someInitMethod(){

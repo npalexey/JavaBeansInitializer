@@ -8,7 +8,7 @@ import java.util.*;
 public class Converter {
     private static final Logger logger =  LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         String testS1 = "34";
         String testS2 = "34.5";
         String testS3 = "true";
@@ -29,8 +29,7 @@ public class Converter {
                 logger.info(getTypeOfVariable(el).toString());
             }
         }
-
-    }
+    }*/
 
     public static Object convertAndGetValue(String s){
         if (s.equals("null")) {

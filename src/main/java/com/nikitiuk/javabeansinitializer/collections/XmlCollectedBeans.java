@@ -9,7 +9,6 @@ public class XmlCollectedBeans {
     private Map<String, String> mainMethodMap;
 
     public XmlCollectedBeans(){
-
     }
 
     public String toString(){
