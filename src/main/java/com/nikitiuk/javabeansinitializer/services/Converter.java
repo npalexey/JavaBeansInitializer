@@ -8,29 +8,6 @@ import java.util.*;
 public class Converter {
     private static final Logger logger =  LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
-    /*public static void main(String[] args) {
-        String testS1 = "34";
-        String testS2 = "34.5";
-        String testS3 = "true";
-        String testS4 = "false";
-        String testS5 = "null";
-        String testS6 = "asfaf212nullfalse4";
-        List<String> testList = new ArrayList<>();
-        testList.add(testS1);
-        testList.add(testS2);
-        testList.add(testS3);
-        testList.add(testS4);
-        testList.add(testS5);
-        testList.add(testS6);
-        for (String el: testList) {
-            if(getTypeOfVariable(el) == null){
-                logger.info("null");
-            } else {
-                logger.info(getTypeOfVariable(el).toString());
-            }
-        }
-    }*/
-
     public static Object convertAndGetValue(String s){
         if (s.equals("null")) {
             return (Object)null;

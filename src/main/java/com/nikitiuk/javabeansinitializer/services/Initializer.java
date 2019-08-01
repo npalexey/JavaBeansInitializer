@@ -4,7 +4,6 @@ import com.nikitiuk.javabeansinitializer.collections.BeanMapper;
 import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.NodeList;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -13,28 +12,11 @@ import java.util.Map;
 public class Initializer {
     private static final Logger logger =  LoggerFactory.getLogger(Initializer.class);
 
-    /*public static void main(String[] args) {
-        try {
-            String expression = "/beans/*";
-            String pathToXml = "src/main/resources/beansPerson.xml";
-            NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
-            XmlCollectedBeans xmlCollectedBeans = Reader.getXmlCollectedBeansFromNodeList(nodeList);
-            Map<String,Object> beans = createObjectsFromBeanData(xmlCollectedBeans);
-            loopToChangeNowUsedForWiring(beans, xmlCollectedBeans);
-            initializeMainMethod(beans, xmlCollectedBeans);
-            //logger.info(xmlCollectedBeans.toString());
-            logger.info(beans.toString());
-        } catch (Exception e){
-            logger.error("Exception caught: " + e);
-        }
-    }*/
-
     public static Map<String, Object> initializeBeans(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         try {
             Map<String,Object> beans = createObjectsFromBeanData(xmlCollectedBeans);
-            loopToChangeNowUsedForWiring(beans, xmlCollectedBeans);
+            loopToChangeASAPThatIsNowUsedForWiring(beans, xmlCollectedBeans);
             initializeMainMethod(beans, xmlCollectedBeans);
-            //logger.info(xmlCollectedBeans.toString());
             return beans;
         } catch (Exception e){
             logger.error("Exception caught: " + e);
@@ -42,7 +24,7 @@ public class Initializer {
         }
     }
 
-    public static Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+    private static Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         Map<String, Object> beanObjects = new HashMap<>();
         if(xmlCollectedBeans.getImports() != null){
             beanObjects.putAll(getOtherBeansFromImports(xmlCollectedBeans));
@@ -80,8 +62,8 @@ public class Initializer {
                 String propName = entry.getValue().get("name");
                 Class<?> fieldType = bean.getClass().getDeclaredField(propName).getType();
                 /*if(entry.getValue().containsKey("value")){
-                    Class<?> fieldTypeToCheck = Converter.getTypeOfVariable(entry.getValue().get("value"));
-                    logger.info("Field Type of Person: " + fieldType.toString() + " vs Field Type to Check: " + fieldTypeToCheck.toString());
+                    Class<?> fieldTypeToCheck = Converter.getTypeOfVariable(entry.getValue().get("value"));                                   //debug code to check field types from
+                    logger.info("Field Type of Person: " + fieldType.toString() + " vs Field Type to Check: " + fieldTypeToCheck.toString()); //xml and preset bean field types
                 }*/
                 if(entry.getValue().containsKey("value") && fieldType == Converter.getTypeOfVariable(entry.getValue().get("value"))){
                     Field field = bean.getClass().getDeclaredField(entry.getValue().get("name"));
@@ -89,7 +71,6 @@ public class Initializer {
                     field.set(beanUpd, Converter.convertAndGetValue(entry.getValue().get("value")));
                 }
             }
-            //logger.info(beanUpd.toString());
             return beanUpd;
         } catch (Exception e){
             logger.error("Exception caught: " + e);
@@ -97,7 +78,7 @@ public class Initializer {
         }
     }
 
-    public static void loopToChangeNowUsedForWiring(Map<String, Object> initializedBeans, XmlCollectedBeans xmlCollectedBeans){
+    private static void loopToChangeASAPThatIsNowUsedForWiring(Map<String, Object> initializedBeans, XmlCollectedBeans xmlCollectedBeans){
         for(Map.Entry<String, BeanMapper> mapperEntry : xmlCollectedBeans.getBeanCollectionsMap().entrySet()){
             wireBeans(initializedBeans, initializedBeans.get(mapperEntry.getValue().getAttributesMap().get("id")), mapperEntry.getValue().getPropertiesMap());
         }
@@ -122,7 +103,7 @@ public class Initializer {
         }
     }
 
-    public static void initializeMainMethod(Map<String, Object> beans, XmlCollectedBeans xmlCollectedBeans) {
+    private static void initializeMainMethod(Map<String, Object> beans, XmlCollectedBeans xmlCollectedBeans) {
         try{
             Map<String, String> mainMethodMap = xmlCollectedBeans.getMainMethodMap();
             Object beanWhoseMainMethodWillBeInitialized = beans.get(mainMethodMap.get("bean"));

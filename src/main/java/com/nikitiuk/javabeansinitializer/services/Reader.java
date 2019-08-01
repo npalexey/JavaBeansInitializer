@@ -13,7 +13,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import com.nikitiuk.javabeansinitializer.collections.BeanMapper;
 import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
 import org.slf4j.Logger;
@@ -23,18 +22,6 @@ import org.xml.sax.SAXException;
 
 public class Reader {
     private static final Logger logger =  LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
-    /*public static void main(String[] args) {
-        try {
-            String expression = "/beans/*";
-            String pathToXml = "src/main/resources/beans.xml";
-            NodeList nodeList = parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
-            //logger.info(getAttributesFromNodeList(nodeList).toString());
-            XmlCollectedBeans xmlCollectedBeans = getXmlCollectedBeansFromNodeList(nodeList);
-            logger.info(xmlCollectedBeans.toString());
-        } catch (Exception e) {
-            logger.error("Exception: " + e);
-        }
-    }*/
 
     public static XmlCollectedBeans readXmlAndGetXmlCollectedBeans(String expression, String pathToXml) throws Exception{
         try {
@@ -89,8 +76,6 @@ public class Reader {
             }
         }
 
-        //logger.info(importsList.toString());
-        //logger.info(mainMethodMap.toString());
         xmlCollectedBeans.setImports(importsList);
         xmlCollectedBeans.setMainMethodMap(mainMethodMap);
         xmlCollectedBeans.setBeanCollectionsMap(beanCollectionsMap);
@@ -120,7 +105,7 @@ public class Reader {
         for (int i = 0; i < namedNodeMap.getLength(); i++){
             attributeMap.put(namedNodeMap.item(i).getNodeName(), namedNodeMap.item(i).getTextContent());
         }
-        //logger.info(attributeMap.toString());
+
         return attributeMap;
     }
 
@@ -140,130 +125,7 @@ public class Reader {
                 propNumber++;
             }
         }
-        //logger.info(propertiesMap.toString());
+
         return propertiesMap;
     }
-
-    /*public static ArrayList<String> getImportsFromNodeList(NodeList nodeList) throws Exception{
-        if(nodeList == null){
-            logger.info("Error: Node list is empty");
-            throw new NullPointerException();
-        }
-
-        ArrayList<String> importsList = new ArrayList<>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node node = nodeList.item(i);
-            if(node.getNodeName().equals("import")){
-                importsList.add(node.getAttributes().getNamedItem("src").getTextContent());
-            }
-        }
-        logger.info(importsList.toString());
-        return importsList;
-    }
-
-    public static Map<String, String> getMainFromNodeList(NodeList nodeList) throws Exception{
-        if(nodeList == null){
-            logger.info("Error: Node list is empty");
-            throw new NullPointerException();
-        }
-
-        Map<String, String> mainMap = new HashMap<>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node node = nodeList.item(i);
-            if(node.getNodeName().equals("main")){
-                mainMap.put(node.getAttributes().getNamedItem("bean").getTextContent(), node.getAttributes().getNamedItem("method").getTextContent());
-            }
-        }
-
-        logger.info(mainMap.toString());
-        return mainMap;
-    }
-
-    public static ArrayList<BeanCollection> getBeanCollectionsFromNodeList(NodeList nodeList) throws Exception{
-        if(nodeList == null){
-            logger.info("Error: Node list is empty");
-            throw new NullPointerException();
-        }
-
-        ArrayList<BeanCollection> beanCollections = new ArrayList<>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node node = nodeList.item(i);
-            if(node.getNodeName().equals("bean")){
-                beanCollections.add(getBeanAndItsProperties(node));
-            }
-        }
-        return beanCollections;
-    }*/
-
-   /* public static Map<String, Map<String, ArrayList<String>>> getAttributesFromNodeList(NodeList nodeList) throws Exception{
-        if(nodeList == null){
-            logger.info("Error: Node list is empty");
-            throw new NullPointerException();
-        }
-        Map<String, Map<String, ArrayList<String>>> dataMap = new HashMap<>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node node = nodeList.item(i);*/
-            /*if(node.getNodeType() == Node.ELEMENT_NODE){
-                Element element = (Element) node;
-                logger.info(element.toString());
-            }*/
-            //logger.info(node.getNodeName());
-
-           /* String mainMapKey = node.getNodeName()+"s";
-            if (dataMap.containsKey(mainMapKey)){
-                dataMap.replace(mainMapKey, transformXmlDataFromCertainNodeIntoMap(node, dataMap.get(mainMapKey)));
-            } else {
-                dataMap.put(mainMapKey, transformXmlDataFromCertainNodeIntoMap(node));
-            }*/
-            /*NamedNodeMap attributeMap = node.getAttributes();
-            for (int j = 0; j < attributeMap.getLength(); ++j) {
-                //logger.info(attributeMap.item(j).toString());
-                //logger.info(attributeMap.item(j).getNodeName());
-                //logger.info(attributeMap.item(j).getTextContent());
-            }*/
-        /*}
-        return dataMap;
-    }
-
-    public static Map<String,ArrayList<String>> transformXmlDataFromCertainNodeIntoMap(Node node){
-        NamedNodeMap attributeMap = node.getAttributes();
-        Map<String, ArrayList<String>> nodeValues = new HashMap<>();
-        ArrayList<String> arrayListWithValues = new ArrayList<>();
-        for (int j = 0; j < attributeMap.getLength(); ++j) {
-            //logger.info(attributeMap.item(j).toString());
-            arrayListWithValues.add(attributeMap.item(j).getTextContent());
-            nodeValues.put(attributeMap.item(j).getNodeName(), arrayListWithValues);
-        }
-        return nodeValues;
-    }
-
-    public static Map<String,ArrayList<String>> transformXmlDataFromCertainNodeIntoMap(Node node, Map<String, ArrayList<String>> valuesMap) throws Exception{
-        NamedNodeMap attributeMap = node.getAttributes();
-
-        for (int j = 0; j < attributeMap.getLength(); ++j) {*/
-            //logger.info(attributeMap.item(j).toString());
-            /*if(valuesMap.get(attributeMap.item(j).getNodeName()) == null){
-                logger.info("Error: There Is No ArrayList");
-                logger.info(attributeMap.item(j).getNodeName());
-                for (int i = 0; i < attributeMap.getLength(); ++i) {
-                    logger.info(attributeMap.item(i).toString());
-                    logger.info(attributeMap.item(i).getNodeName());
-                    logger.info(attributeMap.item(i).getTextContent());
-                }
-                logger.info(valuesMap.toString());
-                throw new NullPointerException();
-            }*/
-            /*if (valuesMap.get(attributeMap.item(j).getNodeName()) != null){
-                ArrayList<String> updatedArrayList = valuesMap.get(attributeMap.item(j).getNodeName());
-                updatedArrayList.add(attributeMap.item(j).getTextContent());
-                valuesMap.put(attributeMap.item(j).getNodeName(), updatedArrayList);
-            } else {
-                ArrayList<String> arrayListOfValues = new ArrayList<>();
-                arrayListOfValues.add(attributeMap.item(j).getTextContent());
-                valuesMap.put(attributeMap.item(j).getNodeName(), arrayListOfValues);
-            }
-
-        }
-        return valuesMap;
-    }*/
 }

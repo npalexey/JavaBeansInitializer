@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,13 +48,7 @@ class ConverterTest {
 
     @Test
     void getTypeOfVariableTest() {
-        List<String> testList = new ArrayList<>();
-        testList.add("34");
-        testList.add("34.5");
-        testList.add("false");
-        testList.add("true");
-        testList.add("null");
-        testList.add("asfaf212nullfalse4");
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
         List<Class<?>> typesList = new ArrayList<>();
         for (String el: testList) {
             if(Converter.getTypeOfVariable(el) == null){

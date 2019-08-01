@@ -14,16 +14,6 @@ import org.xml.sax.SAXException;
 public class XmlAgainstXsdValidator {
     private static final Logger logger =  LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
-    /*public static void main(String[] args) {
-        String xml = "src/main/resources/beans.xml";
-        String xsd = "src/main/resources/beans.xsd";
-        if(validateXMLSchema(xml,xsd)){
-            logger.info("Xml" + " is VALID against " + "Xsd");
-        } else {
-            logger.info("Xml" + " is NOT valid against " + "Xsd");
-        }
-    }*/
-
     public static boolean validateXMLSchema(String xmlPath, String xsdPath){
         try {
             SchemaFactory factory =

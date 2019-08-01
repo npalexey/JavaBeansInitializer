@@ -12,28 +12,28 @@ public class Person {
     public String toString() {
         if(boss != null && salary!=null && wealthy != null) {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nIs Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
+                    "\nSalary: " + salary.toString() + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
         } else if(boss != null && salary!=null) {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nWho Knows Whether Is Wealthy" + "\nBoss: " + boss.toString();
+                    "\nSalary: " + salary.toString() + "\nWho Knows Whether " + name + " Is Wealthy" + "\nBoss: " + boss.toString();
         } else if (salary != null && wealthy != null){
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nIs Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
+                    "\nSalary: " + salary.toString() + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
         } else if (boss != null && wealthy != null){
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nIs Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
+                    "\nNo Salary Assigned Yet" + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
         } else if (boss != null) {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether Is Wealthy" + "\nBoss: " + boss.toString();
+                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether " + name + " Is Wealthy" + "\nBoss: " + boss.toString();
         } else if (salary != null) {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nWho Knows Whether Is Wealthy" + "\nNo Boss Assigned Yet";
+                    "\nSalary: " + salary.toString() + "\nWho Knows Whether " + name + " Is Wealthy" + "\nNo Boss Assigned Yet";
         } else if (wealthy != null) {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nIs Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
+                    "\nNo Salary Assigned Yet" + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
         } else {
             return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether Is Wealthy" + "\nNo Boss Assigned Yet";
+                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether " + name + " Is Wealthy" + "\nNo Boss Assigned Yet";
         }
     }
 
