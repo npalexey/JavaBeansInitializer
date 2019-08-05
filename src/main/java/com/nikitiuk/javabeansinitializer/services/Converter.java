@@ -28,7 +28,7 @@ public class Converter {
 
     public static Class<?> getTypeOfVariable(String s){
         if (s.equals("null")) {
-            return Object.class;
+            return Object.class;               //returning Object class, so we don't get a NPE
         } else if (NumberUtils.isParsable(s)){
             try (Scanner scanner = new Scanner(s)) {
                 if (scanner.hasNextInt()) {
@@ -45,22 +45,22 @@ public class Converter {
 
     }
 
-    public static Map<Class<?>, Object> convertAndGetTypePlusValue(String s){
-        Map<Class<?>, Object> convMap = new HashMap<>();
+    public static Map<Object, Class<?>> convertAndGetTypePlusValue(String s){
+        Map<Object, Class<?>> convMap = new HashMap<>();
         if (s.equals("null")) {
-            convMap.put(Object.class, null);
+            convMap.put(null, Object.class);    //casting null to an Object type so that we don't get the NPE
         } else if (NumberUtils.isParsable(s)){
             try (Scanner scanner = new Scanner(s)) {
                 if (scanner.hasNextInt()) {
-                    convMap.put(Integer.TYPE, scanner.nextInt());
+                    convMap.put(scanner.nextInt(), Integer.class);
                 } else {
-                    convMap.put(Double.TYPE, scanner.nextDouble());
+                    convMap.put(scanner.nextDouble(), Double.class);
                 }
             }
         } else if (s.equals("true") || s.equals("false")){
-            convMap.put(Boolean.TYPE, Boolean.parseBoolean(s));
+            convMap.put(Boolean.parseBoolean(s), Boolean.class);
         } else {
-            convMap.put(String.class, s);
+            convMap.put(s, String.class);
         }
         return convMap;
     }

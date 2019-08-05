@@ -82,7 +82,7 @@ public class Reader {
         return xmlCollectedBeans;
     }
 
-    private static BeanMapper getBeanAndItsProperties(Node node) throws Exception{
+    public static BeanMapper getBeanAndItsProperties(Node node) throws Exception{
         if(node == null){
             logger.error("Error: Node equals null");
             throw new NullPointerException();
@@ -99,7 +99,7 @@ public class Reader {
         return beanMapper;
     }
 
-    private static Map<String, String> getAttributesOfBean(Node node){
+    public static Map<String, String> getAttributesOfBean(Node node){
         Map<String,String> attributeMap = new HashMap<>();
         NamedNodeMap namedNodeMap = node.getAttributes();
         for (int i = 0; i < namedNodeMap.getLength(); i++){
@@ -109,7 +109,7 @@ public class Reader {
         return attributeMap;
     }
 
-    private static Map<String, Map<String, String>> getPropertiesOfBean(Node node){
+    public static Map<String, Map<String, String>> getPropertiesOfBean(Node node){
         Map<String, Map<String, String>> propertiesMap = new HashMap<>();
         int propNumber = 1;
         NodeList childNodeList = node.getChildNodes();

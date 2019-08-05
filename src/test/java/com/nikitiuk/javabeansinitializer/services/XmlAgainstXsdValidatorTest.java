@@ -29,4 +29,11 @@ class XmlAgainstXsdValidatorTest {
         logger.info("Test validator with invalid XML file: " + xmlSource + "; against valid XSD: " + xsdSource);
         assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
     }
+    @Test
+    void validateXMLSchemaTestForInvalidPath(){
+        String xmlSource = "src/main/resources/beansS.xml";
+        String xsdSource = "src/main/resources/beans.xsd";
+        logger.info("Test validator with invalid path to Xml file: " + xmlSource + "; against valid XSD: " + xsdSource);
+        assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
+    }
 }

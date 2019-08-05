@@ -24,7 +24,7 @@ class ReaderTest {
             String pathToXml = "src/main/resources/beans.xml";
             NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
             logger.info(Integer.toString(nodeList.getLength()));
-            assertEquals(2,nodeList.getLength());
+            assertEquals(5, nodeList.getLength());
         } catch (Exception e) {
             logger.error("Exception caught: " + e);
         }
@@ -36,9 +36,23 @@ class ReaderTest {
             String expression = "/beans/*";
             String pathToXml = "src/main/resources/beans.xml";
             NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
-            //logger.info(getAttributesFromNodeList(nodeList).toString());
             XmlCollectedBeans xmlCollectedBeans = Reader.getXmlCollectedBeansFromNodeList(nodeList);
             logger.info(xmlCollectedBeans.toString());
+            assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("init"));
+            assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("executor"));
+            assertEquals("executor", xmlCollectedBeans.getBeanCollectionsMap().get("Bean №1").getAttributesMap().get("id"));
+        } catch (Exception e) {
+            logger.error("Exception caught: " + e);
+        }
+    }
+
+    @Test
+    void readXmlAndGetXmlCollectedBeansTest() {
+        try {
+            String expression = "/beans/*";
+            String pathToXml = "src/main/resources/beans.xml";
+            XmlCollectedBeans xmlCollectedBeans = Reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml);
+            assertEquals(2, xmlCollectedBeans.getBeanCollectionsMap().size());
         } catch (Exception e) {
             logger.error("Exception caught: " + e);
         }

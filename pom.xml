@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>JavaBeansInitializer</name>
-    <description>Yet to add</description>
+    <description>BeansInitializationFramework</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

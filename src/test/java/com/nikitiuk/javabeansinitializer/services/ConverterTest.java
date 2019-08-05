@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConverterTest {
@@ -20,30 +20,26 @@ class ConverterTest {
 
     @Test
     void convertAndGetValueTest() {
-        /*List<String> testList = new ArrayList<>();
-        testList.add("34");
-        testList.add("34.5");
-        testList.add("false");
-        testList.add("true");
-        testList.add("null");
-        testList.add("asfaf212nullfalse4");
-        List<?> typesList = new ArrayList<>();
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
+
+        List<Object> valuesList = new ArrayList<>();
         for (String el: testList) {
-            if(Converter.convertAndGetValue(el) == null){
+            Object value = Converter.convertAndGetValue(el);
+            if (value == null){
                 logger.info("null");
             } else {
-                Object type = Converter.convertAndGetValue(el);
-                logger.info(type.toString());
-                typesList.add(type);
+                logger.info(value.toString());
             }
+            valuesList.add(value);
         }
-        assertEquals(typesList.size(), 6);
-        assertEquals(typesList.get(0), Integer.class);
-        assertEquals(typesList.get(1), Double.class);
-        assertEquals(typesList.get(2), Boolean.class);
-        assertEquals(typesList.get(3), Boolean.class);
-        assertEquals(typesList.get(4), Object.class);
-        assertEquals(typesList.get(5), String.class);*/
+
+        assertEquals(6, valuesList.size());
+        assertEquals(34, valuesList.get(0));
+        assertEquals(Double.class, valuesList.get(1).getClass());
+        assertFalse((Boolean)valuesList.get(2));
+        assertTrue((Boolean)valuesList.get(3));
+        assertNull(valuesList.get(4));
+        assertEquals("asf", valuesList.get(5).toString().substring(0,3));
     }
 
     @Test
@@ -59,16 +55,24 @@ class ConverterTest {
                 typesList.add(type);
             }
         }
-        assertEquals(typesList.size(), 6);
-        assertEquals(typesList.get(0), Integer.class);
-        assertEquals(typesList.get(1), Double.class);
-        assertEquals(typesList.get(2), Boolean.class);
-        assertEquals(typesList.get(3), Boolean.class);
-        assertEquals(typesList.get(4), Object.class);
-        assertEquals(typesList.get(5), String.class);
+        assertEquals(6, typesList.size());
+        assertEquals(Integer.class, typesList.get(0));
+        assertEquals(Double.class, typesList.get(1));
+        assertEquals(Boolean.class, typesList.get(2));
+        assertEquals(Boolean.class, typesList.get(3));
+        assertEquals(Object.class, typesList.get(4));
+        assertEquals(String.class, typesList.get(5));
     }
 
     @Test
     void convertAndGetTypePlusValueTest() {
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
+        Map<Object, Class<?>> convertMap = new HashMap<>();
+        for (String el: testList) {
+            convertMap.putAll(Converter.convertAndGetTypePlusValue(el));
+        }
+        logger.info(convertMap.toString());
+        assertTrue(convertMap.containsKey((int)34.6433));
+        assertEquals(6, convertMap.size());
     }
 }
