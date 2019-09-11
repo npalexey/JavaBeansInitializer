@@ -9,52 +9,35 @@ import org.w3c.dom.NodeList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReaderTest {
-    private static Logger logger;
 
-    @BeforeAll
-    public static void setLogger() throws Exception
-    {
-        logger = LoggerFactory.getLogger(Reader.class);
+    private static Logger logger = LoggerFactory.getLogger(Reader.class);
+
+    @Test
+    void parseXmlFileIntoNodeListByCertainExpressionTest() throws Exception {
+        String expression = "/beans/*";
+        String pathToXml = "src/main/resources/beans.xml";
+        NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
+        logger.info(Integer.toString(nodeList.getLength()));
+        assertEquals(5, nodeList.getLength());
     }
 
     @Test
-    void parseXmlFileIntoNodeListByCertainExpressionTest() {
-        try {
-            String expression = "/beans/*";
-            String pathToXml = "src/main/resources/beans.xml";
-            NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
-            logger.info(Integer.toString(nodeList.getLength()));
-            assertEquals(5, nodeList.getLength());
-        } catch (Exception e) {
-            logger.error("Exception caught: " + e);
-        }
+    void getXmlCollectedBeansFromNodeListTest() throws Exception {
+        String expression = "/beans/*";
+        String pathToXml = "src/main/resources/beans.xml";
+        NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
+        XmlCollectedBeans xmlCollectedBeans = Reader.getXmlCollectedBeansFromNodeList(nodeList);
+        logger.info(xmlCollectedBeans.toString());
+        assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("init"));
+        assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("executor"));
+        assertEquals("executor", xmlCollectedBeans.getBeanCollectionsMap().get("Bean №1").getAttributesMap().get("id"));
     }
 
     @Test
-    void getXmlCollectedBeansFromNodeListTest() {
-        try {
-            String expression = "/beans/*";
-            String pathToXml = "src/main/resources/beans.xml";
-            NodeList nodeList = Reader.parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
-            XmlCollectedBeans xmlCollectedBeans = Reader.getXmlCollectedBeansFromNodeList(nodeList);
-            logger.info(xmlCollectedBeans.toString());
-            assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("init"));
-            assertTrue(xmlCollectedBeans.getMainMethodMap().containsValue("executor"));
-            assertEquals("executor", xmlCollectedBeans.getBeanCollectionsMap().get("Bean №1").getAttributesMap().get("id"));
-        } catch (Exception e) {
-            logger.error("Exception caught: " + e);
-        }
-    }
-
-    @Test
-    void readXmlAndGetXmlCollectedBeansTest() {
-        try {
-            String expression = "/beans/*";
-            String pathToXml = "src/main/resources/beans.xml";
-            XmlCollectedBeans xmlCollectedBeans = Reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml);
-            assertEquals(2, xmlCollectedBeans.getBeanCollectionsMap().size());
-        } catch (Exception e) {
-            logger.error("Exception caught: " + e);
-        }
+    void readXmlAndGetXmlCollectedBeansTest() throws Exception {
+        String expression = "/beans/*";
+        String pathToXml = "src/main/resources/beans.xml";
+        XmlCollectedBeans xmlCollectedBeans = Reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml);
+        assertEquals(2, xmlCollectedBeans.getBeanCollectionsMap().size());
     }
 }
