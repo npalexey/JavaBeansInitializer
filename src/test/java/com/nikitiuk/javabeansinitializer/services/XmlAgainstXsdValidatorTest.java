@@ -7,30 +7,25 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class XmlAgainstXsdValidatorTest {
-    private static Logger logger;
+public class XmlAgainstXsdValidatorTest {
+    private static Logger logger = LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
-    @BeforeAll
-    public static void setLogger() throws Exception
-    {
-        logger = LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
-    }
     @Test
-    void validateXMLSchemaTestForValidXML() {
+    public void validateXMLSchemaTestForValidXML() {
         String xmlSource = "src/main/resources/beans.xml";
         String xsdSource = "src/main/resources/beans.xsd";
         logger.info("Test validator with valid XML file: " + xmlSource + "; against valid XSD: " + xsdSource);
         assertTrue(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
     }
     @Test
-    void validateXMLSchemaTestForInvalidXML() {
+    public void validateXMLSchemaTestForInvalidXML() {
         String xmlSource = "src/main/resources/beans(invalid).xml";
         String xsdSource = "src/main/resources/beans.xsd";
         logger.info("Test validator with invalid XML file: " + xmlSource + "; against valid XSD: " + xsdSource);
         assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
     }
     @Test
-    void validateXMLSchemaTestForInvalidPath(){
+    public void validateXMLSchemaTestForInvalidPath(){
         String xmlSource = "src/main/resources/beansS.xml";
         String xsdSource = "src/main/resources/beans.xsd";
         logger.info("Test validator with invalid path to Xml file: " + xmlSource + "; against valid XSD: " + xsdSource);

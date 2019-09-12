@@ -1,5 +1,6 @@
 package com.nikitiuk.javabeansinitializer.services;
 
+import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,22 +8,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServiceStarter {
-    private static final Logger logger =  LoggerFactory.getLogger(Initializer.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
     private static String expression = "/beans/*";
+    private static Initializer initializer = new Initializer();
+    private static Reader reader = new Reader();
 
     public static void main(String[] args) {
-        try{
+        try {
             String pathToXml = "src/main/resources/beansPerson.xml";
             String pathToXsd = "src/main/resources/beans.xsd";
             Map<String, Object> beans = getBeansFromXMLValidatingItBeforehand(pathToXml, pathToXsd);
             logger.info(String.format("Initialized beans: %s", beans.toString()));
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Exception caught at ServiceStarter main.", e);
         }
     }
 
-    private static Map<String, Object> getBeansFromXMLValidatingItBeforehand(String pathToXml, String pathToXsd) throws Exception{
-        if(XmlAgainstXsdValidator.validateXMLSchema(pathToXml, pathToXsd)) {
+    private static Map<String, Object> getBeansFromXMLValidatingItBeforehand(String pathToXml, String pathToXsd) throws Exception {
+        if (XmlAgainstXsdValidator.validateXMLSchema(pathToXml, pathToXsd)) {
             logger.info("Xml file is valid against Xsd");
             return getBeansFromXML(pathToXml);
         } else {
@@ -31,7 +35,7 @@ public class ServiceStarter {
         }
     }
 
-    private static Map<String, Object> getBeansFromXML(String pathToXml) throws Exception{
-        return Initializer.initializeBeans(new Reader().readXmlAndGetXmlCollectedBeans(expression, pathToXml));
+    private static Map<String, Object> getBeansFromXML(String pathToXml) throws Exception {
+        return initializer.initializeBeans(reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml));
     }
 }

@@ -1,25 +1,35 @@
 package com.nikitiuk.javabeansinitializer.collections;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class XmlCollectedBeans {
+
     private Map<String, BeanMapper> beanCollectionsMap;
-    private ArrayList<String> imports;
+    private List<String> imports;
     private Map<String, String> mainMethodMap;
 
-    public XmlCollectedBeans(){
+    public XmlCollectedBeans() {
     }
 
-    public String toString(){
-        if (imports != null && beanCollectionsMap != null && mainMethodMap != null){
-            return "Imports: " + imports.toString() + "\nBean Collection List: " + beanCollectionsMap.toString() + "\nMain method: " + mainMethodMap.toString();
+    public String toString() {
+
+        if (imports != null || beanCollectionsMap != null || mainMethodMap != null) {
+            return String.format("Imports: %s\nBean Collection List: %s\nMain Method: %s",
+                    StringUtils.defaultIfBlank(Objects.toString(imports, null), "no imports."),
+                    StringUtils.defaultIfBlank(Objects.toString(beanCollectionsMap, null), "no bean collection list."),
+                    StringUtils.defaultIfBlank(Objects.toString(mainMethodMap, null), "no main method."));
+            /*return "Imports: " + imports.toString() + "\nBean Collection List: " + beanCollectionsMap.toString() + "\nMain method: " + mainMethodMap.toString();
         } else if(imports != null && beanCollectionsMap != null){
             return "Imports: " + imports.toString() + "\nBean Collection List: " + beanCollectionsMap.toString();
         } else if(beanCollectionsMap != null && mainMethodMap != null){
             return "Bean Collection List: " + beanCollectionsMap.toString() + "\nMain method: " + mainMethodMap.toString();
         } else if(beanCollectionsMap != null) {
-            return "Bean Collection List: " + beanCollectionsMap.toString();
+            return "Bean Collection List: " + beanCollectionsMap.toString();*/
         } else {
             return "No beans were collected";
         }
@@ -33,7 +43,7 @@ public class XmlCollectedBeans {
         this.beanCollectionsMap = beanCollectionsMap;
     }
 
-    public ArrayList<String> getImports() {
+    public List<String> getImports() {
         return imports;
     }
 

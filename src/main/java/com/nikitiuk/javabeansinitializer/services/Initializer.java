@@ -10,9 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Initializer {
-    private static final Logger logger =  LoggerFactory.getLogger(Initializer.class);
 
-    public static Map<String, Object> initializeBeans(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+    private static final Logger logger =  LoggerFactory.getLogger(Initializer.class);
+    private Reader reader = new Reader();
+
+    public Map<String, Object> initializeBeans(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         try {
             Map<String,Object> beans = createObjectsFromBeanData(xmlCollectedBeans);
             loopToChangeASAPThatIsNowUsedForWiring(beans, xmlCollectedBeans);
@@ -24,7 +26,7 @@ public class Initializer {
         }
     }
 
-    private static Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+    private Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         Map<String, Object> beanObjects = new HashMap<>();
         if(xmlCollectedBeans.getImports() != null){
             beanObjects.putAll(getOtherBeansFromImports(xmlCollectedBeans));
@@ -42,11 +44,11 @@ public class Initializer {
         return beanObjects;
     }
 
-    private static Map<String, Object> getOtherBeansFromImports(XmlCollectedBeans xmlCollectedBeans) throws Exception{
+    private Map<String, Object> getOtherBeansFromImports(XmlCollectedBeans xmlCollectedBeans) throws Exception{
         try{
             Map<String, Object> beanObjects = new HashMap<>();
             for(String importString : xmlCollectedBeans.getImports()){
-                beanObjects.putAll(initializeBeans(Reader.readXmlAndGetXmlCollectedBeans("/beans/*", importString)));
+                beanObjects.putAll(initializeBeans(reader.readXmlAndGetXmlCollectedBeans("/beans/*", importString)));
             }
             return beanObjects;
         } catch (Exception e){
@@ -55,7 +57,7 @@ public class Initializer {
         }
     }
 
-    private static Object insertBeanProperties(Map<String,Map<String,String>> propertiesMap, Object bean) throws Exception{
+    private Object insertBeanProperties(Map<String,Map<String,String>> propertiesMap, Object bean) throws Exception{
         try {
             Object beanUpd = bean.getClass().newInstance();
             for (Map.Entry<String,Map<String,String>> entry: propertiesMap.entrySet()){
@@ -78,13 +80,13 @@ public class Initializer {
         }
     }
 
-    private static void loopToChangeASAPThatIsNowUsedForWiring(Map<String, Object> initializedBeans, XmlCollectedBeans xmlCollectedBeans){
+    private void loopToChangeASAPThatIsNowUsedForWiring(Map<String, Object> initializedBeans, XmlCollectedBeans xmlCollectedBeans){
         for(Map.Entry<String, BeanMapper> mapperEntry : xmlCollectedBeans.getBeanCollectionsMap().entrySet()){
             wireBeans(initializedBeans, initializedBeans.get(mapperEntry.getValue().getAttributesMap().get("id")), mapperEntry.getValue().getPropertiesMap());
         }
     }
 
-    private static void wireBeans(Map<String, Object> initializedBeans, Object beanWhereToInsertWiring, Map<String, Map<String,String>> propertiesMapOfBeanWhereToInsertWiring){
+    private void wireBeans(Map<String, Object> initializedBeans, Object beanWhereToInsertWiring, Map<String, Map<String,String>> propertiesMapOfBeanWhereToInsertWiring){
         for(Map.Entry<String,Map<String,String>> propertyEntry : propertiesMapOfBeanWhereToInsertWiring.entrySet()){
             if(propertyEntry.getValue().containsKey("ref")){
                 wire(initializedBeans.get(propertyEntry.getValue().get("ref")), beanWhereToInsertWiring, propertyEntry.getValue().get("name"));
@@ -92,7 +94,7 @@ public class Initializer {
         }
     }
 
-    private static void wire(Object beanToWire, Object beanWhereToInsertWiring, String wiringPropertyName){
+    private void wire(Object beanToWire, Object beanWhereToInsertWiring, String wiringPropertyName){
         try{
             String capitalizedFirst = wiringPropertyName.substring(0,1).toUpperCase();
             String others = wiringPropertyName.substring(1);
@@ -103,7 +105,7 @@ public class Initializer {
         }
     }
 
-    private static void initializeMainMethod(Map<String, Object> beans, XmlCollectedBeans xmlCollectedBeans) {
+    private void initializeMainMethod(Map<String, Object> beans, XmlCollectedBeans xmlCollectedBeans) {
         try{
             Map<String, String> mainMethodMap = xmlCollectedBeans.getMainMethodMap();
             Object beanWhoseMainMethodWillBeInitialized = beans.get(mainMethodMap.get("bean"));

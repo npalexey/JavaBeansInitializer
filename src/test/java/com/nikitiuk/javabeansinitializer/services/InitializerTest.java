@@ -7,20 +7,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
-class InitializerTest {
-    private static Logger logger;
+public class InitializerTest {
 
-    @BeforeAll
-    public static void setLogger() throws Exception
-    {
-        logger = LoggerFactory.getLogger(Converter.class);
-    }
+    private static Logger logger = LoggerFactory.getLogger(Converter.class);
+
     @Test
-    void initializeBeansTest() {
+    public void initializeBeansTest() {
         try {
             String expression = "/beans/*";
             String pathToXml = "src/main/resources/beansPerson.xml";
-            Map<String,Object> beans = Initializer.initializeBeans(Reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml));
+            Reader reader = new Reader();
+            Initializer initializer = new Initializer();
+            Map<String,Object> beans = initializer.initializeBeans(reader.readXmlAndGetXmlCollectedBeans(expression, pathToXml));
             Object bean = beans.get("executor");
             assertEquals("Executor", bean.getClass().getDeclaredMethod("getName").invoke(bean), "Name is Not \"Executor\"");
             assertEquals("ExecutorOfThings", bean.getClass().getDeclaredMethod("getJob").invoke(bean), "Job Name is Not Equal \"ExecutorOfThings\"");
