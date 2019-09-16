@@ -23,13 +23,6 @@ public class XmlCollectedBeans {
                     StringUtils.defaultIfBlank(Objects.toString(imports, null), "no imports."),
                     StringUtils.defaultIfBlank(Objects.toString(beanCollectionsMap, null), "no bean collection list."),
                     StringUtils.defaultIfBlank(Objects.toString(mainMethodMap, null), "no main method."));
-            /*return "Imports: " + imports.toString() + "\nBean Collection List: " + beanCollectionsMap.toString() + "\nMain method: " + mainMethodMap.toString();
-        } else if(imports != null && beanCollectionsMap != null){
-            return "Imports: " + imports.toString() + "\nBean Collection List: " + beanCollectionsMap.toString();
-        } else if(beanCollectionsMap != null && mainMethodMap != null){
-            return "Bean Collection List: " + beanCollectionsMap.toString() + "\nMain method: " + mainMethodMap.toString();
-        } else if(beanCollectionsMap != null) {
-            return "Bean Collection List: " + beanCollectionsMap.toString();*/
         } else {
             return "No beans were collected";
         }

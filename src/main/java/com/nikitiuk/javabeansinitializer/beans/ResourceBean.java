@@ -16,10 +16,7 @@ public class ResourceBean {
 
     @Override
     public String toString() {
-        if(name != null) {
-            return String.format("Resource Bean Name: %s", name);
-        }
-        else return "No bean name";
+        return String.format("Resource Bean Name: %s", StringUtils.defaultIfBlank(name, "no name"));
     }
 
     public void someInitMethod() {

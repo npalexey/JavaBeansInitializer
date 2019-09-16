@@ -18,9 +18,6 @@ public class BeanMapper {
             return String.format("Attributes Map: %s Properties Map: %s",
                     StringUtils.defaultIfBlank(Objects.toString(attributesMap, null), "no attributes."),
                     StringUtils.defaultIfBlank(Objects.toString(propertiesMap, null), "no properties."));
-            /*return "Attributes Map: " + attributesMap.toString() + " Properties Map: " + propertiesMap.toString();
-        } else if (attributesMap != null){
-            return "Attributes Map: " + attributesMap.toString();*/
         } else {
             return "Bean collection is empty";
         }

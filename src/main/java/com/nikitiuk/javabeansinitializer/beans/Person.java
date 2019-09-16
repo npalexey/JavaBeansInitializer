@@ -22,31 +22,6 @@ public class Person {
                 StringUtils.defaultIfBlank(Objects.toString(salary, null), "no salary assigned yet"),
                 StringUtils.defaultIfBlank(Objects.toString(wealthy, null), "Don't know whether is wealthy"),
                 StringUtils.defaultIfBlank(Objects.toString(boss, null), "no boss assigned yet"));
-        /*if(boss != null && salary!=null && wealthy != null) {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
-        } else if(boss != null && salary!=null) {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nWho Knows Whether " + name + " Is Wealthy" + "\nBoss: " + boss.toString();
-        } else if (salary != null && wealthy != null){
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
-        } else if (boss != null && wealthy != null){
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nBoss: " + boss.toString();
-        } else if (boss != null) {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether " + name + " Is Wealthy" + "\nBoss: " + boss.toString();
-        } else if (salary != null) {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nSalary: " + salary.toString() + "\nWho Knows Whether " + name + " Is Wealthy" + "\nNo Boss Assigned Yet";
-        } else if (wealthy != null) {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nIs " + name + " Wealthy? " + wealthy.toString() + "\nNo Boss Assigned Yet";
-        } else {
-            return "Name: " + name + "\nCity of Residence: " + cityOfResidence + "\nJob: " + job +
-                    "\nNo Salary Assigned Yet" + "\nWho Knows Whether " + name + " Is Wealthy" + "\nNo Boss Assigned Yet";
-        }*/
     }
 
     public void init() {
