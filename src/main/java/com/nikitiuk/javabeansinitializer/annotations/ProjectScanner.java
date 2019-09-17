@@ -19,7 +19,8 @@ public class ProjectScanner {
         reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(packageToScan))
                 .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
-                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan))));
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan)))
+                .useParallelExecutor());
     }
 
     public Reflections getReflections() {
@@ -34,11 +35,11 @@ public class ProjectScanner {
         return reflections.getTypesAnnotatedWith(Controller.class);
     }
 
-    public Set<Field> getValues() {
+    /*public Set<Field> getValues() {
         return reflections.getFieldsAnnotatedWith(Value.class);
     }
 
     public Set<Field> getBeansToAutoWire() {
         return reflections.getFieldsAnnotatedWith(AutoWire.class);
-    }
+    }*/
 }
