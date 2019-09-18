@@ -22,6 +22,10 @@ public class ProjectScanner {
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan)))
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.webapp", packageToScan)))
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.resources", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.templates", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.appconfig.properties", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.log4j2.xml", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.tika-config.xml", packageToScan)))
                 .useParallelExecutor());
     }
 
