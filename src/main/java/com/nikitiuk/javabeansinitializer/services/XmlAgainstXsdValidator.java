@@ -20,6 +20,11 @@ public class XmlAgainstXsdValidator {
         try {
             SchemaFactory factory =
                     SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            /*File xsdFile = new File(xsdPath);
+            File xmlFile = new File(xmlPath);
+            if(!xsdFile.exists() || !xmlFile.exists()) {
+                return false;
+            }*/
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new File(xmlPath)));
