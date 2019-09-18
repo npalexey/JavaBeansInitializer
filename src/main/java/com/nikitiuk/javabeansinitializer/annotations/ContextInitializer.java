@@ -18,8 +18,8 @@ public class ContextInitializer {
         ApplicationCustomContext applicationCustomContext = new ApplicationCustomContext();
         applicationCustomContext.setBeanContainer(createBeans());
         applicationCustomContext.setControllerContainer(createControllers());
-        wireValuesAndOtherBeans(applicationCustomContext.getBeanContainer());
-        wireValuesAndOtherBeans(applicationCustomContext.getControllerContainer());
+        wireValuesAndOtherBeans(applicationCustomContext.getBeanContainer(), applicationCustomContext.getBeanContainer());
+        wireValuesAndOtherBeans(applicationCustomContext.getControllerContainer(), applicationCustomContext.getBeanContainer());
         return applicationCustomContext;
     }
 
@@ -51,14 +51,14 @@ public class ContextInitializer {
         return controllerContainer;
     }
 
-    private void wireValuesAndOtherBeans(Map<Class, Object> anyBeanContainer) {
+    private void wireValuesAndOtherBeans(Map<Class, Object> anyBeanContainer, Map<Class, Object> containerToWire) {
        anyBeanContainer.forEach((beanClass, beanClassInstance) -> {
             for (Field field : beanClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 if (field.isAnnotationPresent(Value.class)) {
-                    wireValue(field, beanClassInstance, field.getAnnotation(Value.class).propValue());
+                    wireValue(field, beanClassInstance, field.getAnnotation(Value.class).value());
                 } else if (field.isAnnotationPresent(AutoWire.class)) {
-                    wireOtherBean(field, beanClassInstance, anyBeanContainer.get(field.getType()));
+                    wireOtherBean(field, beanClassInstance, containerToWire.get(field.getType()));
                 }
             }
         });
@@ -67,11 +67,14 @@ public class ContextInitializer {
     private void wireValue(Field field, Object classWhoseFieldIsWired, String value) {
         try {
             Class<?> classOfField = field.getType();
-            if(classOfField.isInstance(value)) {
+            Constructor<?> cons = classOfField.getConstructor(String.class);
+            logger.info("Class of field: " + classOfField.getSimpleName() + "; its value: " + value + "; classWhoseFieldIsWired: " + classWhoseFieldIsWired.getClass().getSimpleName());
+            field.set(classWhoseFieldIsWired, cons.newInstance(value));
+            /*if(classOfField.isInstance(value)) {
                 field.set(classWhoseFieldIsWired, classOfField.cast(value));
             } else {
                 throw new IllegalArgumentException("Type of @Value doesn't match the type of field.");
-            }
+            }*/
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireValue.", e);
         }
@@ -79,9 +82,14 @@ public class ContextInitializer {
 
     private void wireOtherBean(Field field, Object classWhoseFieldIsAnotherClass, Object classToWire) {
         try {
+            logger.info("Wiring bean: " + classToWire.getClass().getSimpleName() + ", to class: " + classWhoseFieldIsAnotherClass.getClass().getSimpleName());
             field.set(classWhoseFieldIsAnotherClass, classToWire);
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireOtherBean.", e);
         }
+    }
+
+    private <T> T castObject(Class<T> clazz, Object object) {
+        return (T) object;
     }
 }
