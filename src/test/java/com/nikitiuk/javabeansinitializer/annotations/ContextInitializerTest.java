@@ -32,7 +32,6 @@ public class ContextInitializerTest {
     public void testControllers() {
         ControllerBean controllerBean = (ControllerBean) applicationCustomContext.getControllerContainer().get(ControllerBean.class);
         TestBeanIndependent testBeanIndependent = (TestBeanIndependent) applicationCustomContext.getBeanContainer().get(TestBeanIndependent.class);
-        TestBeanDependent testBeanDependent = (TestBeanDependent) applicationCustomContext.getBeanContainer().get(TestBeanDependent.class);
         logger.info("Age: " + controllerBean.getAgeOfServiceBean());
         logger.info("Count of serviceBean: " + controllerBean.callCountOfServiceBean());
         assertEquals(testBeanIndependent.getSomeAge(), controllerBean.getAgeOfServiceBean());

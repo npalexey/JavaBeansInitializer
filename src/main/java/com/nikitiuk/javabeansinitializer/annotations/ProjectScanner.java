@@ -20,6 +20,8 @@ public class ProjectScanner {
                 .setUrls(ClasspathHelper.forPackage(packageToScan))
                 .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.webapp", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.resources", packageToScan)))
                 .useParallelExecutor());
     }
 
