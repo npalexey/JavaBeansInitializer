@@ -18,10 +18,10 @@ public class ProjectScanner {
     public void setReflections(String packageToScan) {
         reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(packageToScan))
-                .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
+                .setScanners(/*new SubTypesScanner(), */new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan)))
-                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.webapp", packageToScan)))
-                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.resources", packageToScan)))
+                /*.filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.webapp", packageToScan)))
+                .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.resources", packageToScan)))*/
                 .useParallelExecutor());
     }
 
