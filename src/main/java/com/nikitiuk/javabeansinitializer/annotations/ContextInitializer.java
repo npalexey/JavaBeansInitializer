@@ -68,7 +68,8 @@ public class ContextInitializer {
         try {
             Class<?> classOfField = field.getType();
             Constructor<?> cons = classOfField.getConstructor(String.class);
-            logger.info("Class of field: " + classOfField.getSimpleName() + "; its value: " + value + "; classWhoseFieldIsWired: " + classWhoseFieldIsWired.getClass().getSimpleName());
+            logger.info(String.format("Class of field: %s; its value: %s; classWhoseFieldIsWired: %s.",
+                    classOfField.getSimpleName(), value, classWhoseFieldIsWired.getClass().getSimpleName()));
             field.set(classWhoseFieldIsWired, cons.newInstance(value));
             /*if(classOfField.isInstance(value)) {
                 field.set(classWhoseFieldIsWired, classOfField.cast(value));
@@ -82,7 +83,8 @@ public class ContextInitializer {
 
     private void wireOtherBean(Field field, Object classWhoseFieldIsAnotherClass, Object classToWire) {
         try {
-            logger.info("Wiring bean: " + classToWire.getClass().getSimpleName() + ", to class: " + classWhoseFieldIsAnotherClass.getClass().getSimpleName());
+            logger.info(String.format("Wiring bean: %s, to class: %s.",
+                    classToWire.getClass().getSimpleName(), classWhoseFieldIsAnotherClass.getClass().getSimpleName()));
             field.set(classWhoseFieldIsAnotherClass, classToWire);
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireOtherBean.", e);

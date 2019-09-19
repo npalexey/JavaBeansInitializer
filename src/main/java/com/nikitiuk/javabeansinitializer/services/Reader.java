@@ -31,13 +31,13 @@ public class Reader {
     }
 
     public NodeList parseXmlFileIntoNodeListByCertainExpression(String expression, String pathToXml) throws Exception {
-        FileInputStream fileIS = new FileInputStream(new File(pathToXml));
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        Document xmlDocument = builder.parse(fileIS);
-        return (NodeList) xPath.compile(expression).evaluate(xmlDocument, XPathConstants.NODESET);
-
+        try(FileInputStream fileIS = new FileInputStream(new File(pathToXml))){
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            Document xmlDocument = builder.parse(fileIS);
+            return (NodeList) xPath.compile(expression).evaluate(xmlDocument, XPathConstants.NODESET);
+        }
     }
 
     public XmlCollectedBeans getXmlCollectedBeansFromNodeList(NodeList nodeList) throws Exception {
