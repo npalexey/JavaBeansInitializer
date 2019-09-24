@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConverterTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ConverterTest.class);
-    public static final List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asf212nullfalse4");
+    private static final List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asf212nullfalse4");
 
     @Test
     public void convertAndGetValueTest() {
