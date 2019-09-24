@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.services;
+package com.nikitiuk.javabeansinitializer.xml.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +16,21 @@ public class XmlAgainstXsdValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
 
+    private XmlAgainstXsdValidator() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static boolean validateXMLSchema(String xmlPath, String xsdPath) {
         try {
             SchemaFactory factory =
                     SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            /*File xsdFile = new File(xsdPath);
-            File xmlFile = new File(xmlPath);
-            if(!xsdFile.exists() || !xmlFile.exists()) {
-                return false;
-            }*/
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");*/
+            /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");*/
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
+            /*validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");*/
+            /*validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");*/
             validator.validate(new StreamSource(new File(xmlPath)));
             return true;
         } catch (IOException | SAXException e) {

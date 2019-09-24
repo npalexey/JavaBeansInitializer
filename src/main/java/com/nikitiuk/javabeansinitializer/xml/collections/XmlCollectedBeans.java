@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.collections;
+package com.nikitiuk.javabeansinitializer.xml.collections;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,9 +12,6 @@ public class XmlCollectedBeans {
     private Map<String, BeanMapper> beanCollectionsMap;
     private List<String> imports;
     private Map<String, String> mainMethodMap;
-
-    public XmlCollectedBeans() {
-    }
 
     public String toString() {
 
@@ -40,7 +37,7 @@ public class XmlCollectedBeans {
         return imports;
     }
 
-    public void setImports(ArrayList<String> imports) {
+    public void setImports(List<String> imports) {
         this.imports = imports;
     }
 

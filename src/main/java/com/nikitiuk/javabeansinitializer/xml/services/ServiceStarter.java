@@ -1,6 +1,5 @@
-package com.nikitiuk.javabeansinitializer.services;
+package com.nikitiuk.javabeansinitializer.xml.services;
 
-import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +8,7 @@ import java.util.Map;
 
 public class ServiceStarter {
 
-    private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceStarter.class);
     private static String expression = "/beans/*";
     private static Initializer initializer = new Initializer();
     private static Reader reader = new Reader();

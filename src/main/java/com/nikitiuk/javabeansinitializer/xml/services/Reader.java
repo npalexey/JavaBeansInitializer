@@ -1,7 +1,7 @@
-package com.nikitiuk.javabeansinitializer.services;
+package com.nikitiuk.javabeansinitializer.xml.services;
 
-import com.nikitiuk.javabeansinitializer.collections.BeanMapper;
-import com.nikitiuk.javabeansinitializer.collections.XmlCollectedBeans;
+import com.nikitiuk.javabeansinitializer.xml.collections.BeanMapper;
+import com.nikitiuk.javabeansinitializer.xml.collections.XmlCollectedBeans;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 public class Reader {
 
-    private static final Logger logger = LoggerFactory.getLogger(XmlAgainstXsdValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(Reader.class);
 
     public XmlCollectedBeans readXmlAndGetXmlCollectedBeans(String expression, String pathToXml) throws Exception {
         NodeList nodeList = parseXmlFileIntoNodeListByCertainExpression(expression, pathToXml);
@@ -31,8 +32,9 @@ public class Reader {
     }
 
     public NodeList parseXmlFileIntoNodeListByCertainExpression(String expression, String pathToXml) throws Exception {
-        try(FileInputStream fileIS = new FileInputStream(new File(pathToXml))){
+        try (FileInputStream fileIS = new FileInputStream(new File(pathToXml))) {
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
             XPath xPath = XPathFactory.newInstance().newXPath();
             Document xmlDocument = builder.parse(fileIS);
@@ -42,7 +44,6 @@ public class Reader {
 
     public XmlCollectedBeans getXmlCollectedBeansFromNodeList(NodeList nodeList) throws Exception {
         if (nodeList == null) {
-            /*logger.error("Error: Node list is empty");*/
             throw new NotFoundException("Node list is empty");
         }
 
@@ -65,6 +66,9 @@ public class Reader {
                     beanCollectionsMap.put("Bean №" + beanNumber, getBeanAndItsProperties(node));
                     beanNumber++;
                     break;
+                default:
+                    logger.info(String.format("No action is prescribed for node %s.", node.getNodeName()));
+                    break;
             }
         }
 
@@ -76,7 +80,6 @@ public class Reader {
 
     public BeanMapper getBeanAndItsProperties(Node node) throws Exception {
         if (node == null) {
-            /*logger.error("Error: Node equals null");*/
             throw new NotFoundException("Node is empty.");
         }
 

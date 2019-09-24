@@ -4,14 +4,14 @@
     <!-- optional -->
     <import src="src/main/resources/beans-resources.xml"/>
     <!--<import src="classpath:/common/service-beans.xml"/>-->
-    <bean id="executor" class="com.nikitiuk.javabeansinitializer.beans.Person" >
+    <bean id="executor" class="com.nikitiuk.javabeansinitializer.xml.beans.Person" >
         <property name="name" value="Executor" />
         <property name="cityOfResidence" value="Odessa" />
         <property name="boss" ref="eBoss" />
         <property name="job" value="ExecutorOfThings" />
     </bean>
 
-    <bean id="eBoss" class="com.nikitiuk.javabeansinitializer.beans.Person" >
+    <bean id="eBoss" class="com.nikitiuk.javabeansinitializer.xml.beans.Person" >
         <property name="name" value="EBoss" />
         <property name="cityOfResidence" value="Kyiv" />
         <property name="salary" value="2415" />

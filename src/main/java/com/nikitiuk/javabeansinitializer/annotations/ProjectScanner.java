@@ -1,5 +1,7 @@
 package com.nikitiuk.javabeansinitializer.annotations;
 
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Bean;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Controller;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -8,7 +10,6 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 
 public class ProjectScanner {
@@ -40,12 +41,4 @@ public class ProjectScanner {
     public Set<Class<?>> getControllers() {
         return reflections.getTypesAnnotatedWith(Controller.class, true);
     }
-
-    /*public Set<Field> getValues() {
-        return reflections.getFieldsAnnotatedWith(Value.class);
-    }
-
-    public Set<Field> getBeansToAutoWire() {
-        return reflections.getFieldsAnnotatedWith(AutoWire.class);
-    }*/
 }

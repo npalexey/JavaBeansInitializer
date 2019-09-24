@@ -1,10 +1,14 @@
-package com.nikitiuk.javabeansinitializer.beans;
+package com.nikitiuk.javabeansinitializer.xml.beans;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 public class Person {
+
+    private static final Logger logger =  LoggerFactory.getLogger(Person.class);
 
     private String name;
     private String cityOfResidence;
@@ -25,10 +29,10 @@ public class Person {
     }
 
     public void init() {
-        System.out.println("Now invoking main method of Person...:");
-        System.out.println(name + " lives in " + cityOfResidence);
+        logger.info("Now invoking main method of Person...:");
+        logger.info(String.format("%s lives in %s", name, cityOfResidence));
         if (boss != null) {
-            System.out.println("And his boss is " + boss.name + ";");
+            logger.info(String.format("And his boss is %s;", boss.name));
         }
     }
 

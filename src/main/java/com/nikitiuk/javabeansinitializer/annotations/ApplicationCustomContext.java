@@ -7,9 +7,6 @@ public class ApplicationCustomContext {
     private Map<Class, Object> beanContainer;
     private Map<Class, Object> controllerContainer;
 
-    public ApplicationCustomContext() {
-    }
-
     public Map<Class, Object> getBeanContainer() {
         return beanContainer;
     }

@@ -1,8 +1,12 @@
-package com.nikitiuk.javabeansinitializer.beans;
+package com.nikitiuk.javabeansinitializer.xml.beans;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceBean {
+
+    private static final Logger logger =  LoggerFactory.getLogger(ResourceBean.class);
 
     private String name;
 
@@ -20,6 +24,6 @@ public class ResourceBean {
     }
 
     public void someInitMethod() {
-        System.out.println("That's a resource's main method invoked;");
+        logger.info("That's a resource's main method invoked;");
     }
 }

@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.collections;
+package com.nikitiuk.javabeansinitializer.xml.collections;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,9 +9,6 @@ public class BeanMapper {
 
     private Map<String, String> attributesMap;
     private Map<String, Map<String, String>> propertiesMap;
-
-    public BeanMapper() {
-    }
 
     public String toString() {
         if (attributesMap != null || propertiesMap != null) {

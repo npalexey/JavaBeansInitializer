@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.services;
+package com.nikitiuk.javabeansinitializer.xml.services;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ConverterTest {
 
-    private static Logger logger = LoggerFactory.getLogger(Converter.class);
+    private static final Logger logger = LoggerFactory.getLogger(Converter.class);
 
     @Test
     public void convertAndGetValueTest() {
-        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalsefddd4");
 
         List<Object> valuesList = new ArrayList<>();
         for (String el : testList) {
@@ -38,7 +38,7 @@ public class ConverterTest {
 
     @Test
     public void getTypeOfVariableTest() {
-        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "as223faf212nullfalse4");
         List<Class<?>> typesList = new ArrayList<>();
         for (String el : testList) {
             if (Converter.getTypeOfVariable(el) == null) {
@@ -60,7 +60,7 @@ public class ConverterTest {
 
     @Test
     public void convertAndGetTypePlusValueTest() {
-        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "asfaf212nullfalse4");
+        List<String> testList = Arrays.asList("34", "34.5", "false", "true", "null", "avvasfaf212nullfalse4");
         Map<Object, Class<?>> convertMap = new HashMap<>();
         for (String el : testList) {
             convertMap.putAll(Converter.convertAndGetTypePlusValue(el));

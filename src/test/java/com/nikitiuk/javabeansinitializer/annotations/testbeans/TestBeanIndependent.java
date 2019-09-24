@@ -1,7 +1,7 @@
 package com.nikitiuk.javabeansinitializer.annotations.testbeans;
 
-import com.nikitiuk.javabeansinitializer.annotations.Bean;
-import com.nikitiuk.javabeansinitializer.annotations.Value;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Bean;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Value;
 
 @Bean
 public class TestBeanIndependent {

@@ -3,7 +3,7 @@
        xsi:noNamespaceSchemaLocation="beans.xsd">
     <!-- optional -->
     <!--<import src="classpath:/common/service-beans.xml"/>-->
-    <bean id="resource" class="com.nikitiuk.javabeansinitializer.beans.ResourceBean" >
+    <bean id="resource" class="com.nikitiuk.javabeansinitializer.xml.beans.ResourceBean" >
         <property name="name" value="SomeResource" />
     </bean>
 

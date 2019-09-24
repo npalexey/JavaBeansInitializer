@@ -1,5 +1,7 @@
 package com.nikitiuk.javabeansinitializer.annotations;
 
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.AutoWire;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,11 +73,6 @@ public class ContextInitializer {
             logger.info(String.format("Class of field: %s; its value: %s; classWhoseFieldIsWired: %s.",
                     classOfField.getSimpleName(), value, classWhoseFieldIsWired.getClass().getSimpleName()));
             field.set(classWhoseFieldIsWired, cons.newInstance(value));
-            /*if(classOfField.isInstance(value)) {
-                field.set(classWhoseFieldIsWired, classOfField.cast(value));
-            } else {
-                throw new IllegalArgumentException("Type of @Value doesn't match the type of field.");
-            }*/
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireValue.", e);
         }
@@ -89,9 +86,5 @@ public class ContextInitializer {
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireOtherBean.", e);
         }
-    }
-
-    private <T> T castObject(Class<T> clazz, Object object) {
-        return (T) object;
     }
 }
