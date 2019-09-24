@@ -24,13 +24,10 @@ public class XmlAgainstXsdValidator {
         try {
             SchemaFactory factory =
                     SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");*/
-            /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");*/
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
-            /*validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");*/
-            /*validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");*/
+            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             validator.validate(new StreamSource(new File(xmlPath)));
             return true;
         } catch (IOException | SAXException e) {

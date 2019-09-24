@@ -10,28 +10,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class XmlAgainstXsdValidatorTest {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlAgainstXsdValidatorTest.class);
+    private static final String XSD_SOURCE = "src/main/resources/beans.xsd";
 
     @Test
     public void validateXMLSchemaTestForValidXML() {
         String xmlSource = "src/main/resources/beans.xml";
-        String xsdSource = "src/main/resources/beans.xsd";
-        logger.info(String.format("Test validator with valid XML file: %s; against valid XSD: %s.", xmlSource, xsdSource));
-        assertTrue(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
+        logger.info(String.format("Test validator with valid XML file: %s; against valid XSD: %s.", xmlSource, XSD_SOURCE));
+        assertTrue(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, XSD_SOURCE));
     }
 
     @Test
     public void validateXMLSchemaTestForInvalidXML() {
         String xmlSource = "src/main/resources/beans(invalid).xml";
-        String xsdSource = "src/main/resources/beans.xsd";
-        logger.info(String.format("Test validator with invalid XML file: %s; against valid XSD: %s.", xmlSource, xsdSource));
-        assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
+        logger.info(String.format("Test validator with invalid XML file: %s; against valid XSD: %s.", xmlSource, XSD_SOURCE));
+        assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, XSD_SOURCE));
     }
 
     @Test
     public void validateXMLSchemaTestForInvalidPath() {
         String xmlSource = "src/main/resources/beansS.xml";
-        String xsdSource = "src/main/resources/beans.xsd";
-        logger.info(String.format("Test validator with invalid path to Xml file: %s; against valid XSD: %s.", xmlSource, xsdSource));
-        assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, xsdSource));
+        logger.info(String.format("Test validator with invalid path to Xml file: %s; against valid XSD: %s.", xmlSource, XSD_SOURCE));
+        assertFalse(XmlAgainstXsdValidator.validateXMLSchema(xmlSource, XSD_SOURCE));
     }
 }
