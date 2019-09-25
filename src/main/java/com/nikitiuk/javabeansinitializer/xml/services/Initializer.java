@@ -82,6 +82,7 @@ public class Initializer {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "SuspiciousMethodCalls" })
     private void loopToChangeASAPThatIsNowUsedForWiring(Map<String, Object> initializedBeans, XmlCollectedBeans xmlCollectedBeans) {
         for (Map.Entry<String, BeanMapper> mapperEntry : xmlCollectedBeans.getBeanCollectionsMap().entrySet()) {
             wireBeans(initializedBeans, initializedBeans.get(mapperEntry.getValue().getAttributesMap().get("id")), mapperEntry.getValue().getPropertiesMap());

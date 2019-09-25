@@ -54,7 +54,7 @@ public class ContextInitializer {
     }
 
     private void wireValuesAndOtherBeans(Map<Class, Object> anyBeanContainer, Map<Class, Object> containerToWire) {
-       anyBeanContainer.forEach((beanClass, beanClassInstance) -> {
+        anyBeanContainer.forEach((beanClass, beanClassInstance) -> {
             for (Field field : beanClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 if (field.isAnnotationPresent(Value.class)) {

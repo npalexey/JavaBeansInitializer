@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URLDecoder;
+import java.net.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,37 +12,63 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MultiThreadedServer extends Thread {
+public class MultiThreadedServer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiThreadedServer.class);
-    private static Properties properties = new Properties();
+    /*private static Properties properties = new Properties();
     private Socket client;
     private BufferedReader inClient = null;
-    private DataOutputStream outClient = null;
-    protected ExecutorService threadPool =
-            Executors.newFixedThreadPool(10);
+    private DataOutputStream outClient = null;*/
+    private boolean SERVER_STOPPED = false;
+    private Thread runningThread = null;
+    private ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
-    public MultiThreadedServer(Socket cl) {
+    /*public MultiThreadedServer(Socket cl) {
         this.client = cl;
-    }
+    }*/
 
-    public static void main(String[] args) throws Exception {
+    @Override
+    public void run() {
+        synchronized(this){
+            this.runningThread = Thread.currentThread();
+        }
         clearPropertiesFile();
 
-        ServerSocket server = new ServerSocket(7070, 10, InetAddress.getByName("127.0.0.1"));
+        ServerSocket serverSocket;
+        try {
+            serverSocket = new ServerSocket(7070, 10, InetAddress.getByName("127.0.0.1"));
+        } catch (IOException e) {
+            logger.error("Error while opening socket.", e);
+            throw new RuntimeException("Error while opening socket.", e);
+        }
 
         logger.info("HTTPServer started on port 7070");
 
-        while (true) {
-            Socket connected = server.accept();
-            MultiThreadedServer httpServer = new MultiThreadedServer(connected);
-            httpServer.start();
+        while (!SERVER_STOPPED) {
+            Socket connectedClientSocket;
+            try {
+                connectedClientSocket = serverSocket.accept();
+                /*ServerThread httpServerThread = new ServerThread(connectedClientSocket);
+                httpServerThread.start();*/
+            } catch (IOException e) {
+                if(SERVER_STOPPED) {
+                    logger.info("Server Stopped.");
+                    break;
+                }
+                throw new RuntimeException("Error accepting client connection.", e);
+            }
+            Map<String, String> dataMap = new HashMap<>();
+            readPropertiesIntoMap(dataMap);
+            this.threadPool.execute(new ServerThread(connectedClientSocket, dataMap));
         }
+        threadPool.shutdown();
+        logger.info("Server Stopped.");
     }
 
-    public static void clearPropertiesFile() {
+    public void clearPropertiesFile() {
         try {
             if (new File("data.properties").exists()) {  //check whether data.properties file exists and if so - DELETE ITS CONTENT,..
+                Properties properties = new Properties();
                 properties.load(new FileInputStream("data.properties")); //be careful if you have something important there
                 properties.clear();
                 properties.store(new FileOutputStream("data.properties"), null);
@@ -55,7 +78,23 @@ public class MultiThreadedServer extends Thread {
         }
     }
 
-    @Override
+    public void readPropertiesIntoMap(Map<String, String> dataMap) {
+        try {
+            Properties properties = new Properties();
+            if (new File("data.properties").exists()) {
+                properties.load(new FileInputStream("data.properties"));
+            }
+            if (!properties.isEmpty()) {
+                for (String key : properties.stringPropertyNames()) {
+                    dataMap.put(key, properties.get(key).toString());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception thrown: ", e);
+        }
+    }
+
+    /*@Override
     public void run() {
         try {
             Map<String, String> dataMap = new HashMap<>();
@@ -70,9 +109,9 @@ public class MultiThreadedServer extends Thread {
             while (headerLine == null) {
                 headerLine = inClient.readLine();
             }
-            /*if (headerLine == null) {
+            *//*if (headerLine == null) {
                 return;
-            }*/
+            }*//*
 
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
@@ -99,21 +138,6 @@ public class MultiThreadedServer extends Thread {
                     onDeleteRequest(httpQueryString, dataMap);
                     break;
                 default:
-            }
-        } catch (Exception e) {
-            logger.error("Exception thrown: ", e);
-        }
-    }
-
-    public void readPropertiesIntoMap(Map<String, String> dataMap) {
-        try {
-            if (new File("data.properties").exists()) {
-                properties.load(new FileInputStream("data.properties"));
-            }
-            if (!properties.isEmpty()) {
-                for (String key : properties.stringPropertyNames()) {
-                    dataMap.put(key, properties.get(key).toString());
-                }
             }
         } catch (Exception e) {
             logger.error("Exception thrown: ", e);
@@ -232,7 +256,7 @@ public class MultiThreadedServer extends Thread {
         responseString = HTML_START + NEW_LINE + responseString + NEW_LINE + HTML_END;
         contentLengthLine = Headers.CONTENT_LENGTH + ": " + responseString.length() + NEW_LINE;
         DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O",
-                Locale.ENGLISH)/*.withZone(ZoneOffset.UTC)*/;
+                Locale.ENGLISH)*//*.withZone(ZoneOffset.UTC)*//*;
         currentDate = currentDate + formatter2.format(ZonedDateTime.now(ZoneId.systemDefault())) + NEW_LINE;
 
         outClient.writeBytes(statusLine);
@@ -279,5 +303,5 @@ public class MultiThreadedServer extends Thread {
         private static final String HTTP_200 = "HTTP/1.1 200 OK";
         private static final String HTTP_204 = "HTTP/1.1 204 No Content";
         private static final String HTTP_404 = "HTTP/1.1 404 Not Found";
-    }
+    }*/
 }
