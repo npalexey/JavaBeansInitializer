@@ -12,6 +12,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MultiThreadedServer extends Thread {
 
@@ -20,6 +22,8 @@ public class MultiThreadedServer extends Thread {
     private Socket client;
     private BufferedReader inClient = null;
     private DataOutputStream outClient = null;
+    protected ExecutorService threadPool =
+            Executors.newFixedThreadPool(10);
 
     public MultiThreadedServer(Socket cl) {
         this.client = cl;
