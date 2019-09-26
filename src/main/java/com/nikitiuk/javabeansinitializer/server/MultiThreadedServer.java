@@ -58,7 +58,7 @@ public class MultiThreadedServer implements Runnable {
                 throw new RuntimeException("Error accepting client connection.", e);
             }
             Map<String, String> dataMap = new HashMap<>();
-            readPropertiesIntoMap(dataMap);
+
             this.threadPool.execute(new ServerThread(connectedClientSocket, dataMap));
         }
         threadPool.shutdown();
@@ -78,21 +78,6 @@ public class MultiThreadedServer implements Runnable {
         }
     }
 
-    public void readPropertiesIntoMap(Map<String, String> dataMap) {
-        try {
-            Properties properties = new Properties();
-            if (new File("data.properties").exists()) {
-                properties.load(new FileInputStream("data.properties"));
-            }
-            if (!properties.isEmpty()) {
-                for (String key : properties.stringPropertyNames()) {
-                    dataMap.put(key, properties.get(key).toString());
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Exception thrown: ", e);
-        }
-    }
 
     /*@Override
     public void run() {

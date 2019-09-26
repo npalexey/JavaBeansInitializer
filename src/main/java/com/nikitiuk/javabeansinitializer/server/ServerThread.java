@@ -1,18 +1,17 @@
 package com.nikitiuk.javabeansinitializer.server;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class ServerThread extends Thread {
 
@@ -32,21 +31,78 @@ public class ServerThread extends Thread {
         try {
             logger.info("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
 
-            inClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
             outClient = new DataOutputStream(client.getOutputStream());
 
+            /*char previousChar = (char) 0;
+            char thisChar;
+            StringBuilder stringBuilder = new StringBuilder();
+            boolean emptyLine = false;
+            while (!emptyLine) {
+                thisChar = (char) bufferedInputStream.read();
+                if (thisChar == '\r' && previousChar == '\n') {
+                    emptyLine = true;
+                } else {
+                    stringBuilder.append(thisChar);
+                    previousChar = thisChar;
+                }
+            }
+            logger.info(stringBuilder.toString());
+
+            DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
+            int count = bufferedInputStream.available();
+            byte[] ary = new byte[count];
+            dataInputStream.read(ary);
+            StringBuilder stringBuilder1 = new StringBuilder();
+            for (byte bt : ary) {
+                char k = (char) bt;
+                stringBuilder1.append(k);
+            }
+            logger.info(stringBuilder1.toString());*/
+
+
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
+            String boundary = "";
+            boolean notYetBoundary = true;
+            bufferedReader.mark(5000);
+            while(notYetBoundary) {
+                String nextLine = bufferedReader.readLine();
+                logger.info(nextLine);
+                if(nextLine.startsWith("Content-Type")) {
+                    boundary = nextLine.substring(nextLine.indexOf("boundary="));
+                    bufferedReader.reset();
+                    notYetBoundary = false;
+                }
+            }
+            logger.info(boundary);
+            if(StringUtils.isNotEmpty(boundary)) {
+                logger.info("In if, starting Transcriber");
+                new BodyTranscriber(bufferedInputStream, boundary).transcribeBodyIntoData();
+            }
+
+
+
+
+            /*inClient = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
+            InputStream inputStream = client.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(client.getInputStream());
+            outClient = new DataOutputStream(client.getOutputStream());
+
+            readPropertiesIntoMap(dataMap);
             String headerLine = inClient.readLine();
 
             while (headerLine == null) {
                 headerLine = inClient.readLine();
             }
-            /*if (headerLine == null) {
+            *//*if (headerLine == null) {
                 return;
-            }*/
+            }*//*
 
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
             String httpQueryString = tokenizer.nextToken();
+
 
             logger.info("The HTTP request:");
             logger.info(headerLine);
@@ -55,6 +111,18 @@ public class ServerThread extends Thread {
             inClient.read(bodyOfRequest);   //reads body of request and returns its length(not needed)
             logger.info("Body of Request:");
             logger.info(new String(bodyOfRequest));
+            if(bodyOfRequest != null && bodyOfRequest.length != 0) {
+                int read = 0;
+                byte[] bytes = new byte[1024];
+                OutputStream out = new FileOutputStream("/home/npalexey/workenv/some.txt");
+                while ((read = inputStream.read(bytes)) != -1) {
+                    out.write(bytes, 0, read);
+                }
+            }
+
+
+
+
 
             switch (httpMethod) {
                 case "GET":
@@ -69,16 +137,18 @@ public class ServerThread extends Thread {
                     break;
                 default:
                     break;
-            }
-            inClient.close();
+            }*/
+            bufferedInputStream.close();
+            //inClient.close();
             outClient.close();
         } catch (Exception e) {
             logger.error("Exception thrown: ", e);
         }
     }
 
-    /*public void readPropertiesIntoMap(Map<String, String> dataMap) {
+    public void readPropertiesIntoMap(Map<String, String> dataMap) {
         try {
+            Properties properties = new Properties();
             if (new File("data.properties").exists()) {
                 properties.load(new FileInputStream("data.properties"));
             }
@@ -90,7 +160,7 @@ public class ServerThread extends Thread {
         } catch (Exception e) {
             logger.error("Exception thrown: ", e);
         }
-    }*/
+    }
 
     public Integer getContentLengthOfARequestBodyAndLogHeaders(BufferedReader inClient) throws Exception {
         boolean headersFinished = false;
@@ -130,8 +200,9 @@ public class ServerThread extends Thread {
 
                 if (!dataMap.isEmpty()) {
                     logger.info(dataMap.toString());
-                    /*properties.putAll(dataMap);
-                    properties.store(new FileOutputStream("data.properties"), null);*/
+                    Properties properties = new Properties();
+                    properties.putAll(dataMap);
+                    properties.store(new FileOutputStream("data.properties"), null);
                 }
                 sendResponse(200, "HTTPServer Home Page.");
             } else {
@@ -168,6 +239,9 @@ public class ServerThread extends Thread {
             if (httpQueryString.length() > 1 && dataMap.containsKey(keyToDelete = httpQueryString.substring(1))) {
                 dataMap.remove(keyToDelete);
                 logger.info(dataMap.toString());
+                Properties properties = new Properties();
+                properties.putAll(dataMap);
+                properties.store(new FileOutputStream("data.properties"), null);
                 sendResponse(200, String.format("%s successfully removed", keyToDelete));
             } else {
                 sendResponse(404, "Resource Not Found");
