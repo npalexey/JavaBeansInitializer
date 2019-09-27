@@ -31,7 +31,11 @@ public class ServerThread extends Thread {
         try {
             logger.info("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
 
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
+            InputStream inputStream = client.getInputStream();
+
+            Request request = HttpUtils.readRequest(inputStream);
+
+            //BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
             outClient = new DataOutputStream(client.getOutputStream());
 
             /*char previousChar = (char) 0;
@@ -62,24 +66,69 @@ public class ServerThread extends Thread {
 
 
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
+            /*BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
             String boundary = "";
-            boolean notYetBoundary = true;
-            bufferedReader.mark(5000);
-            while(notYetBoundary) {
+            int contentLength = 0;
+            boolean notYetBody = true;
+            //bufferedReader.mark(5000);
+            while(notYetBody) {
                 String nextLine = bufferedReader.readLine();
                 logger.info(nextLine);
-                if(nextLine.startsWith("Content-Type")) {
-                    boundary = nextLine.substring(nextLine.indexOf("boundary="));
-                    bufferedReader.reset();
-                    notYetBoundary = false;
+                if(nextLine.startsWith("Content-Length")) {
+                    String cl = nextLine.substring("Content-Length:".length()).trim();
+                    contentLength = Integer.parseInt(cl);
                 }
+                if(nextLine.startsWith("Content-Type")) {
+                    boundary = nextLine.substring(nextLine.indexOf("=") + 1);
+                    //bufferedReader.reset();
+                }
+                if(nextLine.equals("")){
+                    logger.info("Body reached");
+                    notYetBody = false;
+                }
+            }*/
+
+
+            /*StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(bufferedReader.readLine());
+            stringBuilder.append("\r\n");
+            stringBuilder.append(bufferedReader.readLine());
+            stringBuilder.append("\r\n");
+            stringBuilder.append(bufferedReader.readLine());
+            stringBuilder.append("\r\n");
+            int ch;
+            FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/something.docx");
+            BufferedOutputStream writer = new BufferedOutputStream(fout);
+            while (bufferedReader.ready()*//*(ch = bufferedReader.read()) != -1*//*){
+                ch = bufferedReader.read();
+                stringBuilder.append((char)ch);
+                writer.write(ch);
             }
-            logger.info(boundary);
+
+
+            *//*while(ch != -1) {
+                stringBuilder.append((char)ch);
+                ch = bufferedInputStream.read();
+            }*//*
+
+
+            logger.info(stringBuilder.toString());
+            writer.close();*/
+
+
+            /*logger.info("FOUND BOUNDARY " + boundary);
             if(StringUtils.isNotEmpty(boundary)) {
                 logger.info("In if, starting Transcriber");
-                new BodyTranscriber(bufferedInputStream, boundary).transcribeBodyIntoData();
-            }
+                BodyTranscriber bodyTranscriber = new BodyTranscriber(bufferedReader, boundary);
+                bodyTranscriber.transcribeBodyIntoData();
+            }*/
+
+            /*while ((bytesRead = bufferedReader.read(array, 0, array.length)) != -1) {
+                // do something with array of bytes
+            }*/
+
+
+
 
 
 
@@ -138,7 +187,10 @@ public class ServerThread extends Thread {
                 default:
                     break;
             }*/
-            bufferedInputStream.close();
+            /*bufferedReader.close();
+            bufferedInputStream.close();*/
+
+            inputStream.close();
             //inClient.close();
             outClient.close();
         } catch (Exception e) {
@@ -323,5 +375,4 @@ public class ServerThread extends Thread {
         private static final String HTTP_204 = "HTTP/1.1 204 No Content";
         private static final String HTTP_404 = "HTTP/1.1 404 Not Found";
     }
-
 }

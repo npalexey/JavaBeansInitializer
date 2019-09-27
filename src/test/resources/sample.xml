@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="beans.xsd">
+    <!-- optional -->
+    <import src="src/main/resources/beans-resources.xml"/>
+    <!--<import src="classpath:/common/service-beans.xml"/>-->
+    <bean id="executor" class="com.nikitiuk.javabeansinitializer.xml.beans.Person" >
+        <property name="name" value="Executor" />
+        <property name="cityOfResidence" value="Odessa" />
+        <property name="boss" ref="eBoss" />
+        <property name="job" value="ExecutorOfThings" />
+    </bean>
+
+    <bean id="eBoss" class="com.nikitiuk.javabeansinitializer.xml.beans.Person" >
+        <property name="name" value="EBoss" />
+        <property name="cityOfResidence" value="Kyiv" />
+        <property name="salary" value="2415" />
+        <property name="wealthy" value="true" />
+        <property name="job" value="Bossing The Executor" />
+    </bean>
+
+    <!-- required, but should be only one -->
+    <main bean="executor" method="init" />
+</beans>

@@ -29,9 +29,6 @@ public class MultiThreadedServer implements Runnable {
 
     @Override
     public void run() {
-        synchronized(this){
-            this.runningThread = Thread.currentThread();
-        }
         clearPropertiesFile();
 
         ServerSocket serverSocket;
@@ -50,6 +47,8 @@ public class MultiThreadedServer implements Runnable {
                 connectedClientSocket = serverSocket.accept();
                 /*ServerThread httpServerThread = new ServerThread(connectedClientSocket);
                 httpServerThread.start();*/
+                Map<String, String> dataMap = new HashMap<>();
+                this.threadPool.execute(new ServerThread(connectedClientSocket, dataMap));
             } catch (IOException e) {
                 if(SERVER_STOPPED) {
                     logger.info("Server Stopped.");
@@ -57,9 +56,6 @@ public class MultiThreadedServer implements Runnable {
                 }
                 throw new RuntimeException("Error accepting client connection.", e);
             }
-            Map<String, String> dataMap = new HashMap<>();
-
-            this.threadPool.execute(new ServerThread(connectedClientSocket, dataMap));
         }
         threadPool.shutdown();
         logger.info("Server Stopped.");
@@ -289,4 +285,9 @@ public class MultiThreadedServer implements Runnable {
         private static final String HTTP_204 = "HTTP/1.1 204 No Content";
         private static final String HTTP_404 = "HTTP/1.1 404 Not Found";
     }*/
+
+    public void stopServer() {
+        logger.info("Stopping server.");
+        threadPool.shutdown();
+    }
 }

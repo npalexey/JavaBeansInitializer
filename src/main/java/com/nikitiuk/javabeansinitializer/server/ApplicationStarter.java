@@ -6,5 +6,4 @@ public class ApplicationStarter {
         MultiThreadedServer server = new MultiThreadedServer();
         new Thread(server).start();
     }
-
 }

@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class BodyTranscriber {
 
@@ -15,10 +17,10 @@ public class BodyTranscriber {
     private String finalBoundary;
     private int sizeOfFinalBoundaryInBytes;
 
-    public BodyTranscriber(BufferedInputStream bufferedInputStream, String boundary) {
-        this.bufferedInputStream = bufferedInputStream;
-        this.bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
-        this.dataInputStream = new DataInputStream(bufferedInputStream);
+    public BodyTranscriber(BufferedReader bufferedInputStream, String boundary) {
+        //this.bufferedInputStream = bufferedInputStream;
+        this.bufferedReader = /*new BufferedReader(new InputStreamReader(*/bufferedInputStream;
+        //this.dataInputStream = new DataInputStream(bufferedInputStream);
         this.boundary = "--" + boundary;
         this.finalBoundary = this.boundary + "--";
         this.sizeOfFinalBoundaryInBytes = this.finalBoundary.getBytes().length;
@@ -26,8 +28,28 @@ public class BodyTranscriber {
 
     public void transcribeBodyIntoData() throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(bufferedReader.readLine());
-        if(bufferedReader.readLine().equals(boundary)) {
+        //stringBuilder.append(bufferedReader.readLine());
+        //logger.info(stringBuilder.toString());
+        String currentLine = "";
+        while (!(currentLine = bufferedReader.readLine()).equals(boundary)) {
+            logger.info(currentLine);
+        }
+        logger.info("REACHED FIRST BOUNDARY");
+        logger.info(bufferedReader.readLine());
+        logger.info(bufferedReader.readLine());
+        logger.info(bufferedReader.readLine());
+        logger.info("SAVING FILE");
+        FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/something.doc");
+        BufferedOutputStream writer = new BufferedOutputStream(fout);
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(writer));
+        //BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Filepath")));
+        while (!(currentLine = bufferedReader.readLine()).equals(finalBoundary)) {
+            logger.info(currentLine);
+            bufferedWriter.write(currentLine);
+            bufferedWriter.newLine();
+        }
+        bufferedWriter.close();
+        if(false/*bufferedReader.readLine().equals(boundary)*/) {
             stringBuilder.append(bufferedReader.readLine());
             stringBuilder.append(bufferedReader.readLine());
             stringBuilder.append(bufferedReader.readLine());
@@ -55,7 +77,6 @@ public class BodyTranscriber {
                 /*outStream.write(dataInputStream., 0, dataInputStream.available() - sizeOfFinalBoundaryInBytes);*/
             }
         }
-
     }
 
     private boolean reachedFinal() throws IOException {
