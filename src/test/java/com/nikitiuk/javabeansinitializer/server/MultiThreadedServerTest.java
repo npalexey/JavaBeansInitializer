@@ -15,7 +15,7 @@ import java.net.URL;
 public class MultiThreadedServerTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiThreadedServerTest.class);
-    private static MultiThreadedServer server = new MultiThreadedServer();
+    private static MultiThreadedServer server = new MultiThreadedServer(7070);
 
     @BeforeAll
     public static void startServer() {

@@ -30,15 +30,15 @@ public class ServerThread extends Thread {
     public void run() {
         try {
             logger.info("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
-
-            InputStream inputStream = client.getInputStream();
-
-            Request request = HttpUtils.readRequest(inputStream);
-
-            //BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
             outClient = new DataOutputStream(client.getOutputStream());
+            //InputStream inputStream = client.getInputStream();
 
-            /*char previousChar = (char) 0;
+            //Request request = HttpUtils.readRequest(inputStream);
+
+
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
+
+            char previousChar = (char) 0;
             char thisChar;
             StringBuilder stringBuilder = new StringBuilder();
             boolean emptyLine = false;
@@ -51,18 +51,18 @@ public class ServerThread extends Thread {
                     previousChar = thisChar;
                 }
             }
-            logger.info(stringBuilder.toString());
+            //logger.info(stringBuilder.toString());
 
             DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
             int count = bufferedInputStream.available();
             byte[] ary = new byte[count];
             dataInputStream.read(ary);
-            StringBuilder stringBuilder1 = new StringBuilder();
+            //StringBuilder stringBuilder1 = new StringBuilder();
             for (byte bt : ary) {
                 char k = (char) bt;
-                stringBuilder1.append(k);
+                stringBuilder.append(k);
             }
-            logger.info(stringBuilder1.toString());*/
+            logger.info(stringBuilder.toString() + stringBuilder.length());
 
 
 
@@ -187,11 +187,13 @@ public class ServerThread extends Thread {
                 default:
                     break;
             }*/
-            /*bufferedReader.close();
-            bufferedInputStream.close();*/
+            /*bufferedReader.close();*/
+            bufferedInputStream.close();
 
-            inputStream.close();
             //inClient.close();
+
+            //inputStream.close();
+
             outClient.close();
         } catch (Exception e) {
             logger.error("Exception thrown: ", e);

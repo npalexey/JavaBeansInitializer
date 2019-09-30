@@ -19,32 +19,43 @@ public class MultiThreadedServer implements Runnable {
     private Socket client;
     private BufferedReader inClient = null;
     private DataOutputStream outClient = null;*/
-    private boolean SERVER_STOPPED = false;
-    private Thread runningThread = null;
+    private final int socketPort;
+    private boolean SERVER_STOPPED = true;
     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
-    /*public MultiThreadedServer(Socket cl) {
-        this.client = cl;
-    }*/
+    private MultiThreadedServer() {
+        this.socketPort = 7070;
+    }
+
+    public MultiThreadedServer(int socketPort) {
+        this.socketPort = socketPort;
+    }
 
     @Override
     public void run() {
-        clearPropertiesFile();
+        try(ServerSocket serverSocket = openSocket(socketPort)) {
+            SERVER_STOPPED = false;
 
-        ServerSocket serverSocket;
-        try {
-            serverSocket = new ServerSocket(7070, 10, InetAddress.getByName("127.0.0.1"));
+            logger.info(String.format("HTTPServer started on port %d", socketPort));
+
+            serverLoop(serverSocket);
+
+            stopServer();
+            logger.info("Server Stopped.");
         } catch (IOException e) {
             logger.error("Error while opening socket.", e);
             throw new RuntimeException("Error while opening socket.", e);
         }
+    }
 
-        logger.info("HTTPServer started on port 7070");
+    private ServerSocket openSocket(int port) throws IOException {
+        return new ServerSocket(port, 10, InetAddress.getByName("127.0.0.1"));
+    }
 
+    private void serverLoop(ServerSocket serverSocket) {
         while (!SERVER_STOPPED) {
-            Socket connectedClientSocket;
             try {
-                connectedClientSocket = serverSocket.accept();
+                Socket connectedClientSocket = serverSocket.accept();
                 /*ServerThread httpServerThread = new ServerThread(connectedClientSocket);
                 httpServerThread.start();*/
                 Map<String, String> dataMap = new HashMap<>();
@@ -57,11 +68,9 @@ public class MultiThreadedServer implements Runnable {
                 throw new RuntimeException("Error accepting client connection.", e);
             }
         }
-        threadPool.shutdown();
-        logger.info("Server Stopped.");
     }
 
-    public void clearPropertiesFile() {
+    /*public void clearPropertiesFile() {
         try {
             if (new File("data.properties").exists()) {  //check whether data.properties file exists and if so - DELETE ITS CONTENT,..
                 Properties properties = new Properties();
@@ -70,9 +79,9 @@ public class MultiThreadedServer implements Runnable {
                 properties.store(new FileOutputStream("data.properties"), null);
             }
         } catch (Exception e) {
-            logger.error("Exception thrown: ", e);
+            logger.error("Error while clearing properties file.", e);
         }
-    }
+    }*/
 
 
     /*@Override
@@ -288,6 +297,7 @@ public class MultiThreadedServer implements Runnable {
 
     public void stopServer() {
         logger.info("Stopping server.");
+        SERVER_STOPPED = true;
         threadPool.shutdown();
     }
 }

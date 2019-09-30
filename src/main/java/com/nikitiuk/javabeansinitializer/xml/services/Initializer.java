@@ -29,6 +29,7 @@ public class Initializer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> createObjectsFromBeanData(XmlCollectedBeans xmlCollectedBeans) throws Exception {
         Map<String, Object> beanObjects = new HashMap<>();
         if (xmlCollectedBeans.getImports() != null) {

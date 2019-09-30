@@ -2,6 +2,7 @@ package com.nikitiuk.javabeansinitializer.server;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 public class FileRequest implements Request {
 
@@ -16,12 +17,12 @@ public class FileRequest implements Request {
     }
 
     @Override
-    public String getBody() {
+    public Map<String, byte[]> getBody() {
         return null;
     }
 
-    @Override
+    /*@Override
     public List<File> getAttachments() {
         return null;
-    }
+    }*/
 }
