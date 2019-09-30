@@ -21,10 +21,6 @@ public class RequestDigester {
         String firstHeaderLine = headersList.remove(0);
         RequestMethod requestMethod = getRequestMethod(firstHeaderLine);
         String url = getUrl(firstHeaderLine);
-        logger.info(requestMethod.toString());
-        logger.info(url);
-
-        logger.info(headersList.toString());
 
         switch (requestMethod) {
             case GET:
@@ -32,7 +28,7 @@ public class RequestDigester {
                 return new InfoRequest(url, requestMethod);
             case PUT:
             case POST:
-                //return new FileRequest() parseFileRequest(headersList, bufferedInputStream);
+                return new FileRequest(url, requestMethod, parseFileRequest(headersList, bufferedInputStream));
             default:
                 throw new RuntimeException("Request Method Is Incorrect.");
         }
@@ -42,6 +38,7 @@ public class RequestDigester {
         List<String> headers = new ArrayList<>();
         while (true) {
             String nextLine = readLineIntoString(bis);
+            logger.info(nextLine.replaceAll("\r\n", ""));
             if (nextLine.equals("\r\n")) {
                 break;
             }
@@ -69,21 +66,23 @@ public class RequestDigester {
                 StringTokenizer tokenizer = new StringTokenizer(line, " ");
                 tokenizer.nextToken();
                 contentType = tokenizer.nextToken().replaceAll(";", "").trim();
-                boundary = "--" + tokenizer.nextToken().substring(9);   //'boundary=' - 9 chars
+
+                boundary = "--" + tokenizer.nextToken().substring(9).replaceAll("\r\n", "");   //'boundary=' - 9 chars
             } else if(line.startsWith("Content-Length")) {
-                contentLength = Integer.parseInt(line.substring(16));   //'Content-Length: ' - 16 chars
+                contentLength = Integer.parseInt(line.substring(16).replaceAll("\r\n", ""));   //'Content-Length: ' - 16 chars
             }
         }
-        if(contentType.equals("multipart/form-data") && !boundary.equals("")) {
+        if(contentType.equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && !boundary.equals("")) {
             return parseMultipartFormData(boundary, bis);
+        } else {
+            throw new RuntimeException("Cannot parse other types of body yet");
         }
-        return null;
     }
 
     private Map<String, byte[]> parseMultipartFormData(String boundary, BufferedInputStream bis) throws IOException {
         String nextLine = "";
         while (!nextLine.equals(boundary)){
-            nextLine = readLineIntoString(bis);
+            nextLine = readLineIntoString(bis).replaceAll("\r\n", "");
         }
         return parseMultipartBody(boundary,bis);
     }
@@ -91,24 +90,46 @@ public class RequestDigester {
     private Map<String, byte[]> parseMultipartBody(String boundary, BufferedInputStream bis) throws IOException {
         boolean reachedFinalBoundary = false;
         Map<String, byte[]> body = new HashMap<>();
-        String currentPartName;
+        String finalBoundary = boundary + "--\r\n";
+        boundary = boundary + "\r\n";
+        byte[] byteBoundary = boundary.getBytes();
+        byte[] byteFinalBoundary = finalBoundary.getBytes();
+        String currentPartName = "";
         String nextLine = "";
         while(!reachedFinalBoundary) {
             while (!nextLine.equals("\r\n")) {
                 nextLine = readLineIntoString(bis);
                 if(nextLine.startsWith("Content-Disposition")) {
                     String[] contentDisposition = nextLine.split(" ");
-                    insertFor:
-                        for(String param : contentDisposition) {
-                            if(param.startsWith("name") && !param.substring(5, 7).equals("\"\"")) {  //name="";
-                                currentPartName = param.substring(6, param.lastIndexOf("\""));
-                                break insertFor;
-                            }
+                    for(String param : contentDisposition) {
+                        if(param.startsWith("name") && !param.substring(5, 7).equals("\"\"")) {  //name="";
+                            currentPartName = param.substring(6, param.lastIndexOf("\""));
+                            break;
+                        } else if (param.startsWith("filename")) {
+                            currentPartName = param.substring(10, param.lastIndexOf("\""));
+                            break;
                         }
+                    }
                 }
             }
+            if(currentPartName.equals("")) {
+                throw new RuntimeException("Cannot parse name of file.");
+            }
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            while (true) {
+                byte[] nextByteLine = readLine(bis);
+                nextLine = new String(nextByteLine);
+                if(Arrays.equals(nextByteLine, byteBoundary)/*nextLine.equals(boundary)*/) {
+                    break;
+                } else if (Arrays.equals(nextByteLine, byteFinalBoundary)/*nextLine.equals(finalBoundary)*/) {
+                    reachedFinalBoundary = true;
+                    break;
+                }
+                byteArrayOutputStream.write(nextByteLine);
+            }
+            body.put(currentPartName, byteArrayOutputStream.toByteArray());
         }
-        return null;
+        return body;
     }
 
     private byte[] readLine(BufferedInputStream bis) throws IOException {

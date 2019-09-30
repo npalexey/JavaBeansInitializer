@@ -31,12 +31,16 @@ public class ServerThread extends Thread {
         try {
             logger.info("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
             outClient = new DataOutputStream(client.getOutputStream());
-            //InputStream inputStream = client.getInputStream();
+            InputStream inputStream = client.getInputStream();
 
-            //Request request = HttpUtils.readRequest(inputStream);
+            Request request = HttpUtils.readRequest(inputStream);
 
+            FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/somejpgjpg.jpg");
+            BufferedOutputStream writer = new BufferedOutputStream(fout);
+            writer.write(request.getBody().get("adf.jpg"));
 
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
+            writer.close();
+            /*BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
 
             char previousChar = (char) 0;
             char thisChar;
@@ -62,7 +66,7 @@ public class ServerThread extends Thread {
                 char k = (char) bt;
                 stringBuilder.append(k);
             }
-            logger.info(stringBuilder.toString() + stringBuilder.length());
+            logger.info(stringBuilder.toString() + stringBuilder.length());*/
 
 
 
@@ -188,11 +192,11 @@ public class ServerThread extends Thread {
                     break;
             }*/
             /*bufferedReader.close();*/
-            bufferedInputStream.close();
+            //bufferedInputStream.close();
 
             //inClient.close();
 
-            //inputStream.close();
+            inputStream.close();
 
             outClient.close();
         } catch (Exception e) {
