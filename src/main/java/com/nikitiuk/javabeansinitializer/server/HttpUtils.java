@@ -27,4 +27,8 @@ final public class HttpUtils {
         System.out.println(bufferedReader.readLine());*/
         return new RequestDigester().parse(bis);
     }
+
+    public static void sendResponse() {
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.nikitiuk.javabeansinitializer.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,34 @@ public class ServerThread extends Thread {
             InputStream inputStream = client.getInputStream();
 
             Request request = HttpUtils.readRequest(inputStream);
+            /*String jsonString = new String(request.getBody().get("JsonArray"));
 
-            FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/somejpgjpg.jpg");
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+
+                // convert JSON string to Map
+                Map<String, String> map = mapper.readValue(jsonString, Map.class);
+
+                // it works
+                //Map<String, String> map = mapper.readValue(json, new TypeReference<Map<String, String>>() {});
+
+                logger.info(map.toString());
+
+            } catch (IOException e) {
+                logger.error("Error.", e);
+            }*/
+
+            /*FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/somejpgjpg.jpg");
             BufferedOutputStream writer = new BufferedOutputStream(fout);
             writer.write(request.getBody().get("adf.jpg"));
 
-            writer.close();
+            writer.close();*/
+
+            inputStream.close();
+
+
+
+
             /*BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
 
             char previousChar = (char) 0;
@@ -66,7 +89,11 @@ public class ServerThread extends Thread {
                 char k = (char) bt;
                 stringBuilder.append(k);
             }
-            logger.info(stringBuilder.toString() + stringBuilder.length());*/
+            logger.info(stringBuilder.toString());
+            logger.info("Whole request length: " + stringBuilder.length());
+
+            bufferedInputStream.close();*/
+
 
 
 
@@ -192,11 +219,11 @@ public class ServerThread extends Thread {
                     break;
             }*/
             /*bufferedReader.close();*/
-            //bufferedInputStream.close();
+
 
             //inClient.close();
 
-            inputStream.close();
+
 
             outClient.close();
         } catch (Exception e) {

@@ -10,15 +10,18 @@ public class InfoRequest implements Request {
 
     private final String url;
     private final RequestMethod requestMethod;
+    private final Map<String, String> headers;
 
     private InfoRequest() {
         this.url = "";
         this.requestMethod = RequestMethod.GET;
+        this.headers = new HashMap<>();
     }
 
-    public InfoRequest(String url, RequestMethod requestMethod) {
+    public InfoRequest(String url, RequestMethod requestMethod, Map<String, String> headers) {
         this.url = url;
         this.requestMethod = requestMethod;
+        this.headers = headers;
     }
 
     @Override
@@ -32,8 +35,8 @@ public class InfoRequest implements Request {
     }
 
     @Override
-    public Map<String, byte[]> getBody() {
-        return new HashMap<>();
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     /*@Override
