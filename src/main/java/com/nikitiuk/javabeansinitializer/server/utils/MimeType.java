@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.server;
+package com.nikitiuk.javabeansinitializer.server.utils;
 
 public enum MimeType {
 
@@ -13,6 +13,13 @@ public enum MimeType {
         @Override
         public String mimeTypeName() {
             return "application/json";
+        }
+    },
+
+    TEXT_HTML {
+        @Override
+        public String mimeTypeName() {
+            return "text/html";
         }
     };
 

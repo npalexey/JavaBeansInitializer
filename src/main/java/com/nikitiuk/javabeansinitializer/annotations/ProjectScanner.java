@@ -1,7 +1,9 @@
 package com.nikitiuk.javabeansinitializer.annotations;
 
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Bean;
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Controller;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Bean;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Controller;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.listener.ApplicationListener;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Provider;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -32,6 +34,14 @@ public class ProjectScanner {
 
     public Reflections getReflections() {
         return reflections;
+    }
+
+    public Set<Class<?>> getListeners() {
+        return reflections.getTypesAnnotatedWith(ApplicationListener.class, true);
+    }
+
+    public Set<Class<?>> getSecurityContext() {
+        return reflections.getTypesAnnotatedWith(Provider.class, true);
     }
 
     public Set<Class<?>> getBeans() {

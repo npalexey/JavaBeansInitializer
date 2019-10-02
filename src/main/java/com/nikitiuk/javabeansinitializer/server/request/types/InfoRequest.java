@@ -1,30 +1,26 @@
-package com.nikitiuk.javabeansinitializer.server;
+package com.nikitiuk.javabeansinitializer.server.request.types;
 
-import java.io.File;
+import com.nikitiuk.javabeansinitializer.server.request.RequestMethod;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class ContentRequest implements Request {
+public class InfoRequest implements Request {
 
     private final String url;
     private final RequestMethod requestMethod;
     private final Map<String, String> headers;
-    private final Map<String, byte[]> body;
 
-
-    private ContentRequest() {
+    private InfoRequest() {
         this.url = "";
         this.requestMethod = RequestMethod.GET;
         this.headers = new HashMap<>();
-        this.body = new HashMap<>();
     }
 
-    public ContentRequest(String url, RequestMethod requestMethod, Map<String, String> headers, Map<String, byte[]> body) {
+    public InfoRequest(String url, RequestMethod requestMethod, Map<String, String> headers) {
         this.url = url;
         this.requestMethod = requestMethod;
         this.headers = headers;
-        this.body = body;
     }
 
     @Override
@@ -42,13 +38,8 @@ public class ContentRequest implements Request {
         return headers;
     }
 
-    @Override
-    public Map<String, byte[]> getBody() {
-        return body;
-    }
-
     /*@Override
     public List<File> getAttachments() {
-        return null;
+        return new ArrayList<>();
     }*/
 }

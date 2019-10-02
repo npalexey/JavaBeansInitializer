@@ -1,7 +1,7 @@
 package com.nikitiuk.javabeansinitializer.annotations;
 
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.AutoWire;
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Value;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.AutoWire;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +18,41 @@ public class ContextInitializer {
     public ApplicationCustomContext initializeContext(String packageName) {
         projectScanner.setReflections(packageName);
         ApplicationCustomContext applicationCustomContext = new ApplicationCustomContext();
+        applicationCustomContext.setListenerContainer(createListeners());
+        applicationCustomContext.setSecurityContainer(createSecurityContext());
         applicationCustomContext.setBeanContainer(createBeans());
         applicationCustomContext.setControllerContainer(createControllers());
         wireValuesAndOtherBeans(applicationCustomContext.getBeanContainer(), applicationCustomContext.getBeanContainer());
         wireValuesAndOtherBeans(applicationCustomContext.getControllerContainer(), applicationCustomContext.getBeanContainer());
         return applicationCustomContext;
+    }
+
+    private Map<Class, Object> createListeners() {
+        Map<Class, Object> listenerContainer = new HashMap<>();
+        projectScanner.getListeners().forEach(listenerClass -> {
+            try {
+                Constructor<?> constructor = listenerClass.getConstructor();
+                Object listener = constructor.newInstance();
+                listenerContainer.put(listenerClass, listener);
+            } catch (Exception e) {
+                logger.error("Error while creating listeners.", e);
+            }
+        });
+        return listenerContainer;
+    }
+
+    private Map<Class, Object> createSecurityContext() {
+        Map<Class, Object> securityContainer = new HashMap<>();
+        projectScanner.getSecurityContext().forEach(securityClass -> {
+            try {
+                Constructor<?> constructor = securityClass.getConstructor();
+                Object securityProvider = constructor.newInstance();
+                securityContainer.put(securityClass, securityProvider);
+            } catch (Exception e) {
+                logger.error("Error while creating security providers.", e);
+            }
+        });
+        return securityContainer;
     }
 
     private Map<Class, Object> createBeans() {
@@ -44,8 +74,8 @@ public class ContextInitializer {
         projectScanner.getControllers().forEach(controllerClass -> {
             try {
                 Constructor<?> constructor = controllerClass.getConstructor();
-                Object bean = constructor.newInstance();
-                controllerContainer.put(controllerClass, bean);
+                Object controller = constructor.newInstance();
+                controllerContainer.put(controllerClass, controller);
             } catch (Exception e) {
                 logger.error("Error while creating controllers.", e);
             }

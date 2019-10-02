@@ -1,7 +1,7 @@
 package com.nikitiuk.javabeansinitializer.annotations.testbeans;
 
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.AutoWire;
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Controller;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.AutoWire;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Controller;
 
 @Controller
 public class ControllerBean {

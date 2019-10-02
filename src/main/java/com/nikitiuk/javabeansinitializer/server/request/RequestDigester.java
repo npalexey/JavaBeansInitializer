@@ -1,16 +1,15 @@
-package com.nikitiuk.javabeansinitializer.server;
+package com.nikitiuk.javabeansinitializer.server.request;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.lang3.StringUtils;
+import com.nikitiuk.javabeansinitializer.server.utils.MimeType;
+import com.nikitiuk.javabeansinitializer.server.request.types.ContentRequest;
+import com.nikitiuk.javabeansinitializer.server.request.types.InfoRequest;
+import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.*;
 
 public class RequestDigester {
@@ -30,7 +29,7 @@ public class RequestDigester {
                 return new InfoRequest(url, requestMethod, headersMap);
             case PUT:
             case POST:
-                return new ContentRequest(url, requestMethod, headersMap, parseContentRequest(headersList, bufferedInputStream));
+                return new ContentRequest(url, requestMethod, headersMap, parseContentRequestBody(headersMap, bufferedInputStream));
             default:
                 throw new RuntimeException("Such Request Method Is Not Implemented Yet.");
         }
@@ -62,7 +61,8 @@ public class RequestDigester {
         return firstHeaderLine.split(" ", 3)[1];
     }
 
-    private Map<String, byte[]> parseContentRequest(List<String> headersList, BufferedInputStream bis) throws IOException {
+    @Deprecated
+    private Map<String, byte[]> parseContentRequestLIST(List<String> headersList, BufferedInputStream bis) throws IOException {
         String contentType = "", boundary = "";
         int contentLength = 0;
         for (String line : headersList) {
@@ -80,7 +80,7 @@ public class RequestDigester {
             }
         }
         if (contentType.equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && !boundary.equals("")) {
-            return parseMultipartFormData(boundary, bis);
+            return parseMultipartBody(boundary, bis);
         } else if (contentType.equals(MimeType.APPLICATION_JSON.mimeTypeName())){
             return parseJsonBody(contentLength, bis);
         } else {
@@ -88,36 +88,36 @@ public class RequestDigester {
         }
     }
 
-    private Map<String, byte[]> parseContentRequestMAP(Map<String, String> headersMap, BufferedInputStream bis) throws IOException {
-        String contentType, boundary = "";
-        String contentTypeEntry = headersMap.get("Content-Type");
+    private Map<String, byte[]> parseContentRequestBody(Map<String, String> headersMap, BufferedInputStream bis) throws IOException {
+        List<String> contentTypeAndBoundary = getContentTypeAndBoundaryFromHeader(headersMap.get("Content-Type"));
+        int contentLength = Integer.parseInt(headersMap.get("Content-Length"));
+        if (contentTypeAndBoundary.get(0).equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && contentTypeAndBoundary.size() == 2/*StringUtils.isNotBlank(boundary)*/) {
+            return parseMultipartBody(contentTypeAndBoundary.get(1), bis);
+        } else if (contentTypeAndBoundary.get(0).equals(MimeType.APPLICATION_JSON.mimeTypeName())){
+            return parseJsonBody(contentLength, bis);
+        } else {
+            throw new RuntimeException("Cannot parse other types of body yet");
+        }
+    }
+
+    private List<String> getContentTypeAndBoundaryFromHeader (String contentTypeEntry) {
+        List<String> contentTypeAndBoundary = new ArrayList<>();
         if(contentTypeEntry.contains(";")) {
             int indexOfSemicolon = contentTypeEntry.indexOf(";");
-            contentType = contentTypeEntry.substring(0, indexOfSemicolon);
-            boundary = "--" + contentTypeEntry.substring(indexOfSemicolon + 11).trim();
+            contentTypeAndBoundary.add(contentTypeEntry.substring(0, indexOfSemicolon));
+            contentTypeAndBoundary.add("--" + contentTypeEntry.substring(indexOfSemicolon + 11).trim());
         } else {
-            contentType = contentTypeEntry.trim();
+            contentTypeAndBoundary.add(contentTypeEntry.trim());
         }
-        int contentLength = Integer.parseInt(headersMap.get("Content-Length"));
-        if (contentType.equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && StringUtils.isNotBlank(boundary)) {
-            return parseMultipartFormData(boundary, bis);
-        } else if (contentType.equals(MimeType.APPLICATION_JSON.mimeTypeName())){
-            return parseJsonBody(contentLength, bis);
-        } else {
-            throw new RuntimeException("Cannot parse other types of body yet");
-        }
-    }
-
-    private String[] getContentTypeAndBoundaryIfExists(String contentTypeEntry) {
-        return null;
-    }
-
-    private Map<String, byte[]> parseMultipartFormData(String boundary, BufferedInputStream bis) throws IOException {
-        readRequestStreamTillCertainBoundary(boundary, bis);
-        return parseMultipartBody(boundary, bis);
+        return contentTypeAndBoundary;
     }
 
     private Map<String, byte[]> parseMultipartBody(String boundary, BufferedInputStream bis) throws IOException {
+        readRequestStreamTillCertainBoundary(boundary, bis);
+        return parseMultipartTrimmedBody(boundary, bis);
+    }
+
+    private Map<String, byte[]> parseMultipartTrimmedBody(String boundary, BufferedInputStream bis) throws IOException {
         boolean reachedFinalBoundary = false;
         Map<String, byte[]> body = new HashMap<>();
         String finalBoundary = boundary + "--\r\n";
@@ -167,7 +167,6 @@ public class RequestDigester {
         readRequestStreamTillCertainBoundary("{\n", bis);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[contentLength/*8 * 1024*/];
-        int bytesRead;
         bis.read(buffer);
         byteArrayOutputStream.write("{\n".getBytes());
         byteArrayOutputStream.write(buffer);
@@ -176,6 +175,7 @@ public class RequestDigester {
         }*/
         Map<String, byte[]> body = new HashMap<>();
         body.put("JsonArray", byteArrayOutputStream.toByteArray());
+        byteArrayOutputStream.close();
         return body;
     }
 

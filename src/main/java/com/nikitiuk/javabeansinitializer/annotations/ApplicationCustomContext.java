@@ -4,8 +4,26 @@ import java.util.Map;
 
 public class ApplicationCustomContext {
 
+    private Map<Class, Object> listenerContainer;
+    private Map<Class, Object> securityContainer;
     private Map<Class, Object> beanContainer;
     private Map<Class, Object> controllerContainer;
+
+    public Map<Class, Object> getListenerContainer() {
+        return listenerContainer;
+    }
+
+    public void setListenerContainer(Map<Class, Object> listenerContainer) {
+        this.listenerContainer = listenerContainer;
+    }
+
+    public Map<Class, Object> getSecurityContainer() {
+        return securityContainer;
+    }
+
+    public void setSecurityContainer(Map<Class, Object> securityContainer) {
+        this.securityContainer = securityContainer;
+    }
 
     public Map<Class, Object> getBeanContainer() {
         return beanContainer;

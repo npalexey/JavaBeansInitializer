@@ -1,14 +1,13 @@
 package com.nikitiuk.javabeansinitializer.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
+import com.nikitiuk.javabeansinitializer.server.request.types.Request;
+import com.nikitiuk.javabeansinitializer.server.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +29,7 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
-            logger.info("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
+            logger.info(String.format("The Client %s:%d is connected", client.getInetAddress(), client.getPort()));
             outClient = new DataOutputStream(client.getOutputStream());
             InputStream inputStream = client.getInputStream();
 

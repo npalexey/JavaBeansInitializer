@@ -1,5 +1,7 @@
-package com.nikitiuk.javabeansinitializer.server;
+package com.nikitiuk.javabeansinitializer.server.utils;
 
+import com.nikitiuk.javabeansinitializer.server.request.types.Request;
+import com.nikitiuk.javabeansinitializer.server.request.RequestDigester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,11 @@ final public class HttpUtils {
         return new RequestDigester().parse(bis);
     }
 
-    public static void sendResponse() {
+    public static void invoke(Request request) {
+        
+    }
+
+    public static void sendResponse(Request request) {
 
     }
 }

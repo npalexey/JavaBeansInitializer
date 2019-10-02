@@ -1,8 +1,8 @@
 package com.nikitiuk.javabeansinitializer.annotations.testbeans;
 
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.AutoWire;
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Bean;
-import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.Value;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.AutoWire;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Bean;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Value;
 
 @Bean
 public class TestBeanDependent {

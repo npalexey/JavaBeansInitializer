@@ -1,4 +1,4 @@
-package com.nikitiuk.javabeansinitializer.server;
+package com.nikitiuk.javabeansinitializer.server.request;
 
 public enum RequestMethod {
     GET,

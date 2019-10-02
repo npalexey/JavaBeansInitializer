@@ -1,10 +1,9 @@
 package com.nikitiuk.javabeansinitializer.server;
 
+import com.nikitiuk.javabeansinitializer.server.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class HttpUtilsTest {
 
