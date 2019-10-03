@@ -9,9 +9,11 @@ public interface Request {
 
     String getUrl();
 
-    RequestMethod getMethod();
+    RequestMethod getHttpMethod();
 
     Map<String, String> getHeaders();
+
+    RequestContext getRequestContext();
 
     default Map<String, byte[]> getBody() {
         return new HashMap<>();

@@ -8,6 +8,18 @@ public class ApplicationCustomContext {
     private Map<Class, Object> securityContainer;
     private Map<Class, Object> beanContainer;
     private Map<Class, Object> controllerContainer;
+    private static ApplicationCustomContext applicationCustomContext;
+
+    private ApplicationCustomContext() {
+
+    }
+
+    public static ApplicationCustomContext getApplicationCustomContext() {
+        if (applicationCustomContext == null) {
+            applicationCustomContext = new ApplicationCustomContext();
+        }
+        return applicationCustomContext;
+    }
 
     public Map<Class, Object> getListenerContainer() {
         return listenerContainer;

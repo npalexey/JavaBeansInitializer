@@ -11,6 +11,7 @@ public class ContentRequest implements Request {
     private final RequestMethod requestMethod;
     private final Map<String, String> headers;
     private final Map<String, byte[]> body;
+    private RequestContext requestContext;
 
 
     private ContentRequest() {
@@ -33,13 +34,22 @@ public class ContentRequest implements Request {
     }
 
     @Override
-    public RequestMethod getMethod() {
+    public RequestMethod getHttpMethod() {
         return requestMethod;
     }
 
     @Override
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public void setRequestContext(RequestContext requestContext) {
+        this.requestContext = requestContext;
+    }
+
+    @Override
+    public RequestContext getRequestContext() {
+        return requestContext;
     }
 
     @Override

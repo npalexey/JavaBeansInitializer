@@ -20,5 +20,9 @@
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="RollingFile" />
 		</Root>
+		<Logger name="org.reflections" level="info" additivity="false">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+		</Logger>
 	</Loggers>
 </Configuration>

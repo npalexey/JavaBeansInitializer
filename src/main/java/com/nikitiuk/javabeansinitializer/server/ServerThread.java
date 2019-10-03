@@ -1,5 +1,6 @@
 package com.nikitiuk.javabeansinitializer.server;
 
+import com.nikitiuk.javabeansinitializer.server.request.MethodCaller;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import com.nikitiuk.javabeansinitializer.server.utils.HttpUtils;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ public class ServerThread extends Thread {
             InputStream inputStream = client.getInputStream();
 
             Request request = HttpUtils.readRequest(inputStream);
+            MethodCaller methodCaller = new MethodCaller();
+            methodCaller.callRequestedMethod(request);
             /*String jsonString = new String(request.getBody().get("JsonArray"));
 
             ObjectMapper mapper = new ObjectMapper();

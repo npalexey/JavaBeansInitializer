@@ -10,6 +10,7 @@ public class InfoRequest implements Request {
     private final String url;
     private final RequestMethod requestMethod;
     private final Map<String, String> headers;
+    private RequestContext requestContext;
 
     private InfoRequest() {
         this.url = "";
@@ -29,8 +30,17 @@ public class InfoRequest implements Request {
     }
 
     @Override
-    public RequestMethod getMethod() {
+    public RequestMethod getHttpMethod() {
         return requestMethod;
+    }
+
+    public void setRequestContext(RequestContext requestContext) {
+        this.requestContext = requestContext;
+    }
+
+    @Override
+    public RequestContext getRequestContext() {
+        return requestContext;
     }
 
     @Override

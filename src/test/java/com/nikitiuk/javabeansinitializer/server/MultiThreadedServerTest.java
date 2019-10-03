@@ -23,7 +23,9 @@ public class MultiThreadedServerTest {
     }
 
     @AfterAll
-    public static void stopServer() {server.stopServer();}
+    public static void stopServer() {
+        server.stopServer();
+    }
 
     @AfterEach
     public void getRequestTest() throws IOException {

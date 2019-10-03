@@ -2,11 +2,15 @@ package com.nikitiuk.javabeansinitializer.annotations;
 
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.AutoWire;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Value;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.listener.ContextInitialized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +21,14 @@ public class ContextInitializer {
 
     public ApplicationCustomContext initializeContext(String packageName) {
         projectScanner.setReflections(packageName);
-        ApplicationCustomContext applicationCustomContext = new ApplicationCustomContext();
+        ApplicationCustomContext applicationCustomContext = ApplicationCustomContext.getApplicationCustomContext();
         applicationCustomContext.setListenerContainer(createListeners());
         applicationCustomContext.setSecurityContainer(createSecurityContext());
         applicationCustomContext.setBeanContainer(createBeans());
         applicationCustomContext.setControllerContainer(createControllers());
+        wireValuesAndOtherBeans(applicationCustomContext.getListenerContainer(), applicationCustomContext.getBeanContainer());
+        invokeCertainMethodByGivenAnnotation(applicationCustomContext.getListenerContainer(), ContextInitialized.class);
+        wireValuesAndOtherBeans(applicationCustomContext.getSecurityContainer(), applicationCustomContext.getBeanContainer());
         wireValuesAndOtherBeans(applicationCustomContext.getBeanContainer(), applicationCustomContext.getBeanContainer());
         wireValuesAndOtherBeans(applicationCustomContext.getControllerContainer(), applicationCustomContext.getBeanContainer());
         return applicationCustomContext;
@@ -116,5 +123,22 @@ public class ContextInitializer {
         } catch (Exception e) {
             logger.error("Error at ContextInitializer wireOtherBean.", e);
         }
+    }
+
+    private void invokeCertainMethodByGivenAnnotation(Map<Class, Object> container, Class<? extends Annotation> annotationClass) {
+        container.forEach((someClass, someClassInstance) -> {
+            for (Method method : someClass.getDeclaredMethods()) {
+                try {
+                    method.setAccessible(true);
+                    if(method.isAnnotationPresent(annotationClass)){
+                        method.invoke(someClassInstance);
+                    }
+                } catch (IllegalAccessException e) {
+                    logger.error("Cannot access method to invoke.", e);
+                } catch (InvocationTargetException e) {
+                    logger.error("Invoked method threw an exception.", e);
+                }
+            }
+        });
     }
 }
