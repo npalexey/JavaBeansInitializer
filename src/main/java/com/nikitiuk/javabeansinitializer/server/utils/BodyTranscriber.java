@@ -38,16 +38,20 @@ public class BodyTranscriber {
         logger.info(bufferedReader.readLine());
         logger.info(bufferedReader.readLine());
         logger.info("SAVING FILE");
-        FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/something.doc");
-        BufferedOutputStream writer = new BufferedOutputStream(fout);
-        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(writer));
-        //BufferedWriter bw = new BufferedWriter(new FileWriter(new File("Filepath")));
-        while (!(currentLine = bufferedReader.readLine()).equals(finalBoundary)) {
-            logger.info(currentLine);
-            bufferedWriter.write(currentLine);
-            bufferedWriter.newLine();
+
+        try (FileOutputStream fout = new FileOutputStream("/home/npalexey/workenv/something.doc");
+             BufferedOutputStream writer = new BufferedOutputStream(fout);
+             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(writer))
+        ) {
+            while (!(currentLine = bufferedReader.readLine()).equals(finalBoundary)) {
+                logger.info(currentLine);
+                bufferedWriter.write(currentLine);
+                bufferedWriter.newLine();
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred.", e);
         }
-        bufferedWriter.close();
+
         if(false/*bufferedReader.readLine().equals(boundary)*/) {
             stringBuilder.append(bufferedReader.readLine());
             stringBuilder.append(bufferedReader.readLine());

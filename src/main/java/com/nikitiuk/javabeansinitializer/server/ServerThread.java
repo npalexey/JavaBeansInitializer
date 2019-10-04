@@ -20,11 +20,11 @@ public class ServerThread extends Thread {
     private BufferedReader inClient = null;
     private DataOutputStream outClient = null;
     private Socket client;
-    private Map<String, String> dataMap;
+    //private Map<String, String> dataMap;
 
-    public ServerThread(Socket client, Map<String, String> dataMap) {
+    public ServerThread(Socket client/*, Map<String, String> dataMap*/) {
         this.client = client;
-        this.dataMap = dataMap;
+        //this.dataMap = dataMap;
     }
 
     @Override

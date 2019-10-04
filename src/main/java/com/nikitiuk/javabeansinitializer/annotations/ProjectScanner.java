@@ -5,9 +5,7 @@ import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.Contr
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.listener.ApplicationListener;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Provider;
 import org.reflections.Reflections;
-import org.reflections.scanners.FieldAnnotationsScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.scanners.*;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
@@ -21,7 +19,8 @@ public class ProjectScanner {
     public void setReflections(String packageToScan) {
         reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(packageToScan))
-                .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
+                .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner(),
+                        new MethodParameterNamesScanner(), new FieldAnnotationsScanner())
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.test", packageToScan)))
                 /*.filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.webapp", packageToScan)))
                 .filterInputsBy(new FilterBuilder().excludePackage(String.format("%s.resources", packageToScan)))

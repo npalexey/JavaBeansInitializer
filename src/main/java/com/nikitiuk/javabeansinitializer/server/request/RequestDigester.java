@@ -167,7 +167,8 @@ public class RequestDigester {
         readRequestStreamTillCertainBoundary("{\n", bis);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[contentLength/*8 * 1024*/];
-        bis.read(buffer);
+        int bytesRead = bis.read(buffer);
+        logger.info(String.format("%d bytes of request's json body were read.", bytesRead));
         byteArrayOutputStream.write("{\n".getBytes());
         byteArrayOutputStream.write(buffer);
         /*while ((bytesRead = bis.read(buffer)) != -1) {
