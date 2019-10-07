@@ -1,21 +1,29 @@
 package com.nikitiuk.javabeansinitializer.server.request;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikitiuk.javabeansinitializer.annotations.ApplicationCustomContext;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.controller.Consumes;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.controller.FormDataParam;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.controller.Path;
+import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.controller.PathParam;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.helpers.Order;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Context;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Filter;
 import com.nikitiuk.javabeansinitializer.exceptions.MethodNotFoundException;
 import com.nikitiuk.javabeansinitializer.exceptions.RequestedParametersDoNotMatchTheMethodException;
+import com.nikitiuk.javabeansinitializer.server.request.types.ContentRequest;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import com.nikitiuk.javabeansinitializer.server.request.types.RequestContext;
+import com.nikitiuk.javabeansinitializer.server.utils.MimeType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
@@ -25,109 +33,27 @@ public class MethodCaller {
     private static final Logger logger = LoggerFactory.getLogger(MethodCaller.class);
     private ApplicationCustomContext applicationCustomContext;
 
-    public void callRequestedMethod(Request request) throws Exception {
+    public Object callRequestedMethod(Request request) throws Exception {
         applicationCustomContext = ApplicationCustomContext.getApplicationCustomContext();
         RequestContext requestContext = new RequestContext();
-        Method method = findRequestedMethod(request.getHttpMethod(), request.getUrl());
+        Method method = MethodFinder.findRequestedMethod(request.getHttpMethod(), request.getUrl());
         if (checkForAuthHeader(request.getHeaders())) {
             requestContext.setSecurityData(request.getHeaders().get("Authorization"));
         } else {
             requestContext.setSecurityData("");
         }
         doAuthManagement(requestContext);
-        if(method.getParameterCount() != countRequestParameters(request)) {
-            throw new RequestedParametersDoNotMatchTheMethodException("Parameters in request do not match the parameters of the method.");
-        }
-        Object[] parameters = new Object[]{};
-        Map<Class, Object> parametersObjects = convertParametersFromRequestAndMethod(request, method);
-        method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()));
-    }
-
-    private Map<Class, Object> convertParametersFromRequestAndMethod(Request request, Method method) {
-        Map<Class, Object> parametersMap = new HashMap<>();
-        if(countRequestParameters(request) == 1) {
-            String parameter = StringUtils.substring(request.getUrl(),
-                    StringUtils.indexOf(request.getUrl(), "{") + 1,
-                    StringUtils.indexOf(request.getUrl(), "}"));
-            if(parameter.matches("-?\\d+(\\.\\d+)?")) {
-                if(StringUtils.contains(parameter, ".")) {
-                    parametersMap.put(Double.class, Double.parseDouble(parameter));
-                } else {
-                    parametersMap.put(Integer.class, Integer.parseInt(parameter));
-                }
-            } else {
-                parametersMap.put(String.class, parameter);
+        request.setRequestContext(requestContext);
+        if(method.getParameterCount() != 0) {
+            if(countMethodParameters(method) != countRequestParameters(request)) {
+                throw new RequestedParametersDoNotMatchTheMethodException("Parameters in request do not match the parameters of the method.");
             }
+            Object[] parametersArgs = constructParametersToInvokeMethodWith(method, request);
+            //Map<Class, Object> parametersObjects = convertParametersFromRequestAndMethod(request, method);
+            return method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()), parametersArgs);
         } else {
-            for(int i = 0; i <countRequestParameters(request); i++) {
-                //addParameterWithItsTypeToParametersMap();
-            }
+            return method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()));
         }
-        return parametersMap;
-    }
-
-    private int countRequestParameters(Request request) {
-        return request.getBody().size() + countUrlParameters(request.getUrl());
-    }
-
-    private int countUrlParameters(String url) {
-        return StringUtils.countMatches(url,"{");
-    }
-
-    private Method findRequestedMethod(RequestMethod httpMethod, String url) throws MethodNotFoundException {
-        for (Class<?> beanClass : applicationCustomContext.getControllerContainer().keySet()) {
-            if (beanClass.isAnnotationPresent(Path.class)) {
-                String urlControllerPath, urlMethodPath;
-                if (StringUtils.countMatches(url, "/") > 1) {
-                    urlControllerPath = StringUtils.substring(url, 0, StringUtils.indexOf(url, "/", 1))/*url.substring(0, url.indexOf("/", 1))*/;
-                    urlMethodPath = StringUtils.substring(url, StringUtils.indexOf(url, "/", 1))/*url.substring(url.indexOf("/", 1))*/;
-                } else {
-                    urlControllerPath = url;
-                    urlMethodPath = null;
-                }
-                String controllerPath = beanClass.getAnnotation(Path.class).value();
-                if (StringUtils.equalsIgnoreCase(controllerPath, urlControllerPath)/*.equals(urlControllerPath)*/) {
-                    for (Method method : beanClass.getDeclaredMethods()) {
-                        method.setAccessible(true);
-                        ifCertainHttp:
-                        if (method.isAnnotationPresent(httpMethod.getAnnotationClassOfHttpMethod())) {
-                            if (method.isAnnotationPresent(Path.class)) {
-                                String methodPath = method.getAnnotation(Path.class).value();
-                                if (urlMethodPath == null && StringUtils.equals(methodPath, "/")) {
-                                    return method;
-                                }
-                                if (urlMethodPath == null) {
-                                    break ifCertainHttp;
-                                }
-                                int slashesInMethodPath = StringUtils.countMatches(methodPath, "/");
-                                if (!StringUtils.contains(methodPath, "{")) {
-                                    if (StringUtils.equalsIgnoreCase(methodPath, urlMethodPath)) {
-                                        return method;
-                                    }
-                                } else if (slashesInMethodPath > 1 && StringUtils.endsWith(urlMethodPath, "}")) {
-                                    String cutUrlMethodPath = StringUtils.substring(urlMethodPath, 0, StringUtils.lastIndexOf(urlMethodPath, "/"));
-                                    String cutMethodPath = StringUtils.substring(methodPath, 0, StringUtils.lastIndexOf(methodPath, "/"));
-                                    if (StringUtils.equalsIgnoreCase(cutMethodPath, cutUrlMethodPath)) {
-                                        return method;
-                                    }
-                                } else if (slashesInMethodPath <= 1) {
-                                    return method;
-                                } else {
-                                    String urlMethodPathWithParameterCutOff = StringUtils.substringBefore(urlMethodPath, "{") + StringUtils.substringAfter(urlMethodPath, "}");
-                                    String methodPathWithParameterCutOff = StringUtils.substringBefore(methodPath, "{") + StringUtils.substringAfter(methodPath, "}");
-                                    if (StringUtils.equalsIgnoreCase(methodPathWithParameterCutOff, urlMethodPathWithParameterCutOff)) {
-                                        return method;
-                                    }
-                                }
-                            } else if (StringUtils.isBlank(urlMethodPath) || StringUtils.equals(urlMethodPath, "/")) {
-                                return method;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        throw new MethodNotFoundException("Provided url doesn't state a correct method to invoke.");
     }
 
     private boolean checkForAuthHeader(Map<String, String> headers) {
@@ -166,6 +92,65 @@ public class MethodCaller {
                 }
             }
         }
+    }
+
+    @Deprecated
+    private Map<Class, Object> convertParametersFromRequestAndMethod(Request request, Method method) {
+        Map<Class, Object> parametersMap = new HashMap<>();
+        if(countRequestParameters(request) == 1) {
+            String parameter = StringUtils.substring(request.getUrl(),
+                    StringUtils.indexOf(request.getUrl(), "{") + 1,
+                    StringUtils.indexOf(request.getUrl(), "}"));
+            if(parameter.matches("-?\\d+(\\.\\d+)?")) {
+                if(StringUtils.contains(parameter, ".")) {
+                    parametersMap.put(Double.class, Double.parseDouble(parameter));
+                } else {
+                    parametersMap.put(Integer.class, Integer.parseInt(parameter));
+                }
+            } else {
+                parametersMap.put(String.class, parameter);
+            }
+        } else {
+            for(int i = 0; i < countRequestParameters(request); i++) {
+                //addParameterWithItsTypeToParametersMap();
+            }
+        }
+        return parametersMap;
+    }
+
+    private Object[] constructParametersToInvokeMethodWith(Method method, Request request) throws
+            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+        Parameter[] declaredParameters = method.getParameters();
+        List<Object> paramList = new ArrayList<>();
+        for(Parameter parameter : declaredParameters) {
+            if (parameter.isAnnotationPresent(PathParam.class)) {
+                String methodPath = method.getAnnotation(Path.class).value();
+                String pathParam = "{" + parameter.getAnnotation(PathParam.class).value() + "}";
+                int startIndexOfParam = StringUtils.indexOf(methodPath, pathParam);
+                String param = StringUtils.substring(request.getUrl(), startIndexOfParam, StringUtils.indexOf(request.getUrl(), "/", startIndexOfParam + 1));
+                paramList.add(createObjectOfCertainTypeFromParamStringValue(param, parameter));
+            } else if (parameter.isAnnotationPresent(FormDataParam.class)) {
+                String formDataParamPartName = parameter.getAnnotation(FormDataParam.class).value();
+                if(parameter.getType() == InputStream.class) {
+                    formDataParamPartName = "file:" + formDataParamPartName;
+                    logger.info("Class of parameter: InputStream.");
+                    paramList.add(new ByteArrayInputStream(request.getBody().get(formDataParamPartName)));
+                } else {
+                    String param = new String(request.getBody().get(formDataParamPartName)).trim();
+                    paramList.add(createObjectOfCertainTypeFromParamStringValue(param, parameter));
+                }
+            } else if(parameter.isAnnotationPresent(Context.class)) {
+                paramList.add(request.getRequestContext());
+            } else if(method.isAnnotationPresent(Consumes.class) &&
+                    Arrays.asList(method.getAnnotation(Consumes.class).value()).contains(MimeType.APPLICATION_JSON.mimeTypeName()) &&
+                    request.getHeaders().containsValue(MimeType.APPLICATION_JSON.mimeTypeName())){
+                ObjectMapper objectMapper = new ObjectMapper();
+                paramList.add(objectMapper.readValue(new String(request.getBody().get("JsonArray")), parameter.getType()));
+            } else {
+                throw new IllegalAccessException("Request is not formatted correctly to access this method.");
+            }
+        }
+        return paramList.toArray();
     }
 
     @Deprecated
@@ -255,5 +240,42 @@ public class MethodCaller {
                 method.invoke(classWhoseMethodToInvoke);
             }
         }
+    }
+
+    private int countMethodParameters(Method method) {
+        final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+        for (Annotation[] annotations : paramAnnotations) {
+            for (Annotation an : annotations) {
+                if(an.annotationType().equals(Context.class)) {
+                    return method.getParameterCount() - 1;
+                }
+            }
+        }
+        return method.getParameterCount();
+    }
+
+    private int countRequestParameters(Request request) {
+        return request.getBody().size() + countUrlParameters(request.getUrl());
+    }
+
+    private int countUrlParameters(String url) {
+        return StringUtils.countMatches(url,"{");
+    }
+
+    private Object createObjectOfCertainTypeFromParamStringValue(String param, Parameter parameter) throws
+            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?> classOfParameter = parameter.getType();
+        if(classOfParameter.isPrimitive()) {
+            if(classOfParameter == Long.class || classOfParameter == Long.TYPE) return Long.parseLong(param);
+            if(classOfParameter == Integer.class || classOfParameter == Integer.TYPE) return Integer.parseInt(param);
+            if(classOfParameter == Double.class || classOfParameter == Double.TYPE) return Double.parseDouble(param);
+            if(classOfParameter == Boolean.class || classOfParameter == Boolean.TYPE) return Boolean.parseBoolean(param);
+            if(classOfParameter == Byte.class || classOfParameter == Byte.TYPE) return Byte.parseByte(param);
+            if(classOfParameter == Short.class || classOfParameter == Short.TYPE) return Short.parseShort(param);
+            if(classOfParameter == Float.class || classOfParameter == Float.TYPE) return Float.parseFloat(param);
+        }
+        Constructor<?> cons = classOfParameter.getConstructor(String.class);
+        logger.info(String.format("Class of parameter: %s; its value: %s.", classOfParameter.getSimpleName(), param));
+        return cons.newInstance(param);
     }
 }

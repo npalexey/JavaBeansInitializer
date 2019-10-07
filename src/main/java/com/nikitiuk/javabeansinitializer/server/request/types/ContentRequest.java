@@ -16,7 +16,7 @@ public class ContentRequest implements Request {
 
     private ContentRequest() {
         this.url = "";
-        this.requestMethod = RequestMethod.GET;
+        this.requestMethod = RequestMethod.POST;
         this.headers = new HashMap<>();
         this.body = new HashMap<>();
     }
@@ -43,6 +43,7 @@ public class ContentRequest implements Request {
         return headers;
     }
 
+    @Override
     public void setRequestContext(RequestContext requestContext) {
         this.requestContext = requestContext;
     }

@@ -2,6 +2,7 @@ package com.nikitiuk.javabeansinitializer.server;
 
 import com.nikitiuk.javabeansinitializer.server.request.MethodCaller;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
+import com.nikitiuk.javabeansinitializer.server.response.Response;
 import com.nikitiuk.javabeansinitializer.server.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class ServerThread extends Thread {
 
@@ -31,12 +33,33 @@ public class ServerThread extends Thread {
     public void run() {
         try {
             logger.info(String.format("The Client %s:%d is connected", client.getInetAddress(), client.getPort()));
-            outClient = new DataOutputStream(client.getOutputStream());
+            //outClient = new DataOutputStream(client.getOutputStream());
+            BufferedOutputStream outBufferedClient = new BufferedOutputStream(client.getOutputStream());
             InputStream inputStream = client.getInputStream();
 
-            Request request = HttpUtils.readRequest(inputStream);
-            MethodCaller methodCaller = new MethodCaller();
-            methodCaller.callRequestedMethod(request);
+            try {
+                Request request = HttpUtils.readRequest(inputStream);
+                MethodCaller methodCaller = new MethodCaller();
+                Object response = methodCaller.callRequestedMethod(request);
+                if(response instanceof Response) {
+                    for(String header : ((Response) response).getHeaders()) {
+                        //outClient.writeBytes(header);
+                        outBufferedClient.write(header.getBytes());
+                    }
+                    int count;
+                    byte[] buffer = new byte[8192]; // or 4096, or more
+                    while ((count = ((Response) response).getBody().read(buffer)) > 0)
+                    {
+                        outBufferedClient.write(buffer, 0, count);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Error while receiving request.", e);
+
+            }
+            outBufferedClient.close();
+            inputStream.close();
+
             /*String jsonString = new String(request.getBody().get("JsonArray"));
 
             ObjectMapper mapper = new ObjectMapper();
@@ -227,7 +250,8 @@ public class ServerThread extends Thread {
 
 
 
-            outClient.close();
+
+            //outClient.close();
         } catch (Exception e) {
             logger.error("Exception thrown: ", e);
         }
@@ -380,9 +404,7 @@ public class ServerThread extends Thread {
     }
 
     public void mainPage() throws Exception {
-        StringBuffer responseBuffer = new StringBuffer();
-        responseBuffer.append("<b>HTTPServer First Attempt.</b>");
-        sendResponse(200, responseBuffer.toString());
+        sendResponse(200, "<b>HTTPServer First Attempt.</b>");
     }
 
     public void resultsPage(Map<String, String> dataMap) throws Exception {

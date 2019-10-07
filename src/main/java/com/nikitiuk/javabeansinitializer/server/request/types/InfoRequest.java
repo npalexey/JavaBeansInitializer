@@ -34,6 +34,7 @@ public class InfoRequest implements Request {
         return requestMethod;
     }
 
+    @Override
     public void setRequestContext(RequestContext requestContext) {
         this.requestContext = requestContext;
     }
