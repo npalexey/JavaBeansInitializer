@@ -6,6 +6,7 @@ import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.helpers.Ord
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Context;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Filter;
 import com.nikitiuk.javabeansinitializer.exceptions.MethodNotFoundException;
+import com.nikitiuk.javabeansinitializer.exceptions.RequestedParametersDoNotMatchTheMethodException;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import com.nikitiuk.javabeansinitializer.server.request.types.RequestContext;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -26,7 +25,7 @@ public class MethodCaller {
     private static final Logger logger = LoggerFactory.getLogger(MethodCaller.class);
     private ApplicationCustomContext applicationCustomContext;
 
-    public void callRequestedMethod(Request request) throws MethodNotFoundException, InvocationTargetException, IllegalAccessException {
+    public void callRequestedMethod(Request request) throws Exception {
         applicationCustomContext = ApplicationCustomContext.getApplicationCustomContext();
         RequestContext requestContext = new RequestContext();
         Method method = findRequestedMethod(request.getHttpMethod(), request.getUrl());
@@ -36,7 +35,43 @@ public class MethodCaller {
             requestContext.setSecurityData("");
         }
         doAuthManagement(requestContext);
+        if(method.getParameterCount() != countRequestParameters(request)) {
+            throw new RequestedParametersDoNotMatchTheMethodException("Parameters in request do not match the parameters of the method.");
+        }
+        Object[] parameters = new Object[]{};
+        Map<Class, Object> parametersObjects = convertParametersFromRequestAndMethod(request, method);
         method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()));
+    }
+
+    private Map<Class, Object> convertParametersFromRequestAndMethod(Request request, Method method) {
+        Map<Class, Object> parametersMap = new HashMap<>();
+        if(countRequestParameters(request) == 1) {
+            String parameter = StringUtils.substring(request.getUrl(),
+                    StringUtils.indexOf(request.getUrl(), "{") + 1,
+                    StringUtils.indexOf(request.getUrl(), "}"));
+            if(parameter.matches("-?\\d+(\\.\\d+)?")) {
+                if(StringUtils.contains(parameter, ".")) {
+                    parametersMap.put(Double.class, Double.parseDouble(parameter));
+                } else {
+                    parametersMap.put(Integer.class, Integer.parseInt(parameter));
+                }
+            } else {
+                parametersMap.put(String.class, parameter);
+            }
+        } else {
+            for(int i = 0; i <countRequestParameters(request); i++) {
+                //addParameterWithItsTypeToParametersMap();
+            }
+        }
+        return parametersMap;
+    }
+
+    private int countRequestParameters(Request request) {
+        return request.getBody().size() + countUrlParameters(request.getUrl());
+    }
+
+    private int countUrlParameters(String url) {
+        return StringUtils.countMatches(url,"{");
     }
 
     private Method findRequestedMethod(RequestMethod httpMethod, String url) throws MethodNotFoundException {

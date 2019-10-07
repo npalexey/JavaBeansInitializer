@@ -67,7 +67,7 @@ public class BodyTranscriber {
                 }
             }*/
             logger.info(stringBuilder.toString());
-            File targetFile = new File("/home/npalexey/workenv/sometext.txt");
+            File targetFile = new File("/home/npalexey/Downloads/sometext.txt");
             OutputStream outStream = new FileOutputStream(targetFile);
             int chunks = dataInputStream.available()/sizeOfFinalBoundaryInBytes;
             byte[] buffer = new byte[8 * 1024];

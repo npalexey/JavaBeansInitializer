@@ -133,10 +133,14 @@ public class RequestDigester {
                     String[] contentDisposition = nextLine.split(" ");
                     for (String param : contentDisposition) {
                         if (param.startsWith("name") && !param.substring(5, 7).equals("\"\"")) {  //name="";
-                            currentPartName = param.substring(6, param.lastIndexOf("\""));
+                            if(contentDisposition.length < 3) {
+                                currentPartName = "file:" + param.substring(6, param.lastIndexOf("\""));
+                            } else {
+                                currentPartName = param.substring(6, param.lastIndexOf("\""));
+                            }
                             break;
                         } else if (param.startsWith("filename")) {
-                            currentPartName = param.substring(10, param.lastIndexOf("\""));
+                            currentPartName = "file:" + param.substring(10, param.lastIndexOf("\""));
                             break;
                         }
                     }
