@@ -19,6 +19,6 @@ public class SecurityBean {
 
     @Filter
     public void filter() {
-        logger.info(requestContext.getSecurityData() + " This comes from first.");
+        logger.info(requestContext.getSecurityInfo() + " This comes from first.");
     }
 }

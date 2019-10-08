@@ -19,6 +19,6 @@ public class SecondSecurityBean {
 
     @Filter
     public void filter() {
-        logger.info(requestContext.getSecurityData() + " And this from second.");
+        logger.info(requestContext.getSecurityInfo() + " And this from second.");
     }
 }

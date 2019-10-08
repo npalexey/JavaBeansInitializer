@@ -56,33 +56,6 @@ public class RequestDigester {
         return firstHeaderLine.split(" ", 3)[1];
     }
 
-    @Deprecated
-    private Map<String, byte[]> parseContentRequestLIST(List<String> headersList, BufferedInputStream bis) throws IOException {
-        String contentType = "", boundary = "";
-        int contentLength = 0;
-        for (String line : headersList) {
-            if (line.startsWith("Content-Type")) {
-                StringTokenizer tokenizer = new StringTokenizer(line, " ");
-                tokenizer.nextToken();
-                contentType = tokenizer.nextToken().replaceAll(";", "").trim();
-                if (contentType.equals(MimeType.MULTIPART_FORM_DATA)) {
-                    boundary = "--" + tokenizer.nextToken().substring(9).replaceAll("\r\n", "");   //'boundary=' - 9 chars
-                } else if (!contentType.equals(MimeType.APPLICATION_JSON)){
-                    throw new RuntimeException("Cannot parse other types of body yet");
-                }
-            } else if (line.startsWith("Content-Length")) {
-                contentLength = Integer.parseInt(line.substring(16).replaceAll("\r\n", ""));   //'Content-Length: ' - 16 chars
-            }
-        }
-        if (contentType.equals(MimeType.MULTIPART_FORM_DATA) && !boundary.equals("")) {
-            return parseMultipartBody(boundary, bis);
-        } else if (contentType.equals(MimeType.APPLICATION_JSON)){
-            return parseJsonBody(contentLength, bis);
-        } else {
-            throw new RuntimeException("Cannot parse other types of body yet");
-        }
-    }
-
     private Map<String, byte[]> parseContentRequestBody(Map<String, String> headersMap, BufferedInputStream bis) throws IOException {
         List<String> contentTypeAndBoundary = getContentTypeAndBoundaryFromHeader(headersMap.get("Content-Type"));
         int contentLength = Integer.parseInt(headersMap.get("Content-Length"));

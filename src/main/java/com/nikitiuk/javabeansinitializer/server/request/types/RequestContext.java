@@ -1,13 +1,15 @@
 package com.nikitiuk.javabeansinitializer.server.request.types;
 
+import com.nikitiuk.javabeansinitializer.server.response.Response;
+
 import java.lang.reflect.Method;
-import java.security.Principal;
 
 public class RequestContext {
 
     private Method method;
-    private String securityData;
-    private Principal principal;
+    private String securityInfo;
+    private ISecurityContext iSecurityContext;
+    private Response abortResponse;
 
     public RequestContext() {
     }
@@ -20,19 +22,27 @@ public class RequestContext {
         this.method = method;
     }
 
-    public void setSecurityData(String securityData) {
-        this.securityData = securityData;
+    public String getSecurityInfo() {
+        return securityInfo;
     }
 
-    public String getSecurityData() {
-        return securityData;
+    public void setSecurityInfo(String securityInfo) {
+        this.securityInfo = securityInfo;
     }
 
-    public Principal getPrincipal() {
-        return principal;
+    public ISecurityContext getISecurityContext() {
+        return iSecurityContext;
     }
 
-    public void setPrincipal(Principal principal) {
-        this.principal = principal;
+    public void setISecurityContext(ISecurityContext iSecurityContext) {
+        this.iSecurityContext = iSecurityContext;
+    }
+
+    public Response getAbortResponse() {
+        return abortResponse;
+    }
+
+    public void abortWith(Response response) {
+        this.abortResponse = response;
     }
 }

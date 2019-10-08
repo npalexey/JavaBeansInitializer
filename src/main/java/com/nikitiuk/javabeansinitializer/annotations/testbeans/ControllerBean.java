@@ -20,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 @Controller
 @Path("/docs")
@@ -52,7 +48,7 @@ public class ControllerBean {
                                            @Context RequestContext requestContext) throws IOException {
         logger.info("That's string from formDataParam : " + name);
         logger.info("That's double from formDataParam : " + value);
-        logger.info("And that's context injected as param : " + requestContext.getSecurityData());
+        logger.info("And that's context injected as param : " + requestContext.getSecurityInfo());
         ResponseBuilder responseBuilder = new ResponseBuilder(ResponseCode.HTTP_200_OK, MimeType.TEXT_HTML,
                 "<b>HTTPServer First Attempt.</b>".getBytes().length);
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new ByteArrayInputStream("<b>HTTPServer First Attempt.</b>".getBytes()));

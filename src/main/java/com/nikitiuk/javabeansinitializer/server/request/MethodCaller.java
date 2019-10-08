@@ -9,9 +9,7 @@ import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.beans.contr
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.helpers.Order;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Context;
 import com.nikitiuk.javabeansinitializer.annotations.annotationtypes.security.Filter;
-import com.nikitiuk.javabeansinitializer.exceptions.MethodNotFoundException;
 import com.nikitiuk.javabeansinitializer.exceptions.RequestedParametersDoNotMatchTheMethodException;
-import com.nikitiuk.javabeansinitializer.server.request.types.ContentRequest;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import com.nikitiuk.javabeansinitializer.server.request.types.RequestContext;
 import com.nikitiuk.javabeansinitializer.server.utils.MimeType;
@@ -32,24 +30,27 @@ public class MethodCaller {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodCaller.class);
     private ApplicationCustomContext applicationCustomContext;
+    private RequestContext requestContext;
 
     public Object callRequestedMethod(Request request) throws Exception {
         applicationCustomContext = ApplicationCustomContext.getApplicationCustomContext();
-        RequestContext requestContext = new RequestContext();
+        requestContext = new RequestContext();
         Method method = MethodFinder.findRequestedMethod(request.getHttpMethod(), request.getUrl());
         if (checkForAuthHeader(request.getHeaders())) {
-            requestContext.setSecurityData(request.getHeaders().get("Authorization"));
+            requestContext.setSecurityInfo(request.getHeaders().get("Authorization"));
         } else {
-            requestContext.setSecurityData("");
+            requestContext.setSecurityInfo("");
         }
-        doAuthManagement(requestContext);
+        doAuthManagement();
         request.setRequestContext(requestContext);
+        if(request.getRequestContext().getAbortResponse() != null) {
+            return null;
+        }
         if(method.getParameterCount() != 0) {
             if(countMethodParameters(method) != countRequestParameters(request)) {
                 throw new RequestedParametersDoNotMatchTheMethodException("Parameters in request do not match the parameters of the method.");
             }
             Object[] parametersArgs = constructParametersToInvokeMethodWith(method, request);
-            //Map<Class, Object> parametersObjects = convertParametersFromRequestAndMethod(request, method);
             return method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()), parametersArgs);
         } else {
             return method.invoke(applicationCustomContext.getControllerContainer().get(method.getDeclaringClass()));
@@ -60,7 +61,7 @@ public class MethodCaller {
         return headers.containsKey("Authorization");
     }
 
-    private void doAuthManagement(RequestContext requestContext) throws IllegalAccessException, InvocationTargetException {
+    private void doAuthManagement() throws IllegalAccessException, InvocationTargetException {
         Map<Class, Object> securityMap = applicationCustomContext.getSecurityContainer();
         injectContext(securityMap, requestContext);
         invokeSecurityFilters(securityMap);
@@ -92,30 +93,6 @@ public class MethodCaller {
                 }
             }
         }
-    }
-
-    @Deprecated
-    private Map<Class, Object> convertParametersFromRequestAndMethod(Request request, Method method) {
-        Map<Class, Object> parametersMap = new HashMap<>();
-        if(countRequestParameters(request) == 1) {
-            String parameter = StringUtils.substring(request.getUrl(),
-                    StringUtils.indexOf(request.getUrl(), "{") + 1,
-                    StringUtils.indexOf(request.getUrl(), "}"));
-            if(parameter.matches("-?\\d+(\\.\\d+)?")) {
-                if(StringUtils.contains(parameter, ".")) {
-                    parametersMap.put(Double.class, Double.parseDouble(parameter));
-                } else {
-                    parametersMap.put(Integer.class, Integer.parseInt(parameter));
-                }
-            } else {
-                parametersMap.put(String.class, parameter);
-            }
-        } else {
-            for(int i = 0; i < countRequestParameters(request); i++) {
-                //addParameterWithItsTypeToParametersMap();
-            }
-        }
-        return parametersMap;
     }
 
     private Object[] constructParametersToInvokeMethodWith(Method method, Request request) throws
@@ -153,55 +130,6 @@ public class MethodCaller {
         return paramList.toArray();
     }
 
-    @Deprecated
-    private void injectContextOld(Map<Class, Object> classObjectMap, RequestContext requestContext) throws IllegalAccessException {
-        if (classObjectMap.size() == 1) {
-            for (Map.Entry<Class, Object> entry : classObjectMap.entrySet()) {
-                for (Field field : entry.getKey().getDeclaredFields()) {
-                    field.setAccessible(true);
-                    if (field.isAnnotationPresent(Context.class)) {
-                        field.set(entry.getValue(), requestContext);
-                    }
-                }
-            }
-        } else if (classObjectMap.size() > 1) {
-            Map<Integer, Class> mapOfOrder = new HashMap<>();
-            int maxCurrentOrder = Integer.MAX_VALUE;
-            for (Map.Entry<Class, Object> entry : classObjectMap.entrySet()) {
-                Class<?> entryClass = entry.getKey();
-                if (entryClass.isAnnotationPresent(Order.class)) {
-                    int placement = entryClass.getAnnotation(Order.class).value();
-                    mapOfOrder.put(placement, entryClass);
-                } else {
-                    mapOfOrder.put(maxCurrentOrder, entryClass);
-                    maxCurrentOrder -= 1;
-                }
-            }
-            Map<Integer, Class> sortedMap = mapOfOrder.entrySet().stream().sorted(Map.Entry.comparingByKey())
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-            logger.info("Sorted Map" + sortedMap.toString());
-            for (Class<?> entryClass : sortedMap.values()) {
-                for (Field field : entryClass.getDeclaredFields()) {
-                    field.setAccessible(true);
-                    if (field.isAnnotationPresent(Context.class)) {
-                        field.set(classObjectMap.get(entryClass), requestContext);
-                    }
-                }
-            }
-        }
-
-        /*anyBeanContainer.forEach((beanClass, beanClassInstance) -> {
-            for (Field field : beanClass.getDeclaredFields()) {
-                field.setAccessible(true);
-                if (field.isAnnotationPresent(Value.class)) {
-                    wireValue(field, beanClassInstance, field.getAnnotation(Value.class).value());
-                } else if (field.isAnnotationPresent(AutoWire.class)) {
-                    wireOtherBean(field, beanClassInstance, containerToWire.get(field.getType()));
-                }
-            }
-        });*/
-    }
-
     private void invokeSecurityFilters(Map<Class, Object> securityMap) throws InvocationTargetException, IllegalAccessException {
         if(securityMap.size() > 1) {
             invokeFiltersForMultipleSecurityProviders(securityMap);
@@ -214,23 +142,19 @@ public class MethodCaller {
         Map<Integer, Class> sortedMap = sortByOrderAnnotation(securityMap);
         logger.info("Sorted Map: " + sortedMap.toString());
         for (Map.Entry<Integer, Class> entry : sortedMap.entrySet()) {
-            /*for (Method method : entry.getValue().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Filter.class)) {
-                    method.invoke(securityMap.get(entry.getValue()));
-                }
-            }*/
             invokeOnlyFilterMethods(entry.getValue().getDeclaredMethods(), securityMap.get(entry.getValue()));
+            if(requestContext.getAbortResponse() != null) {
+                break;
+            }
         }
     }
 
     private void invokeFilterForSingleSecurityProvider(Map<Class, Object> securityMap) throws InvocationTargetException, IllegalAccessException {
         for (Map.Entry<Class, Object> entry : securityMap.entrySet()) {
-            /*for (Method method : entry.getKey().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Filter.class)) {
-                    method.invoke(entry.getValue());
-                }
-            }*/
             invokeOnlyFilterMethods(entry.getKey().getDeclaredMethods(), entry.getValue());
+            if(requestContext.getAbortResponse() != null) {
+                break;
+            }
         }
     }
 

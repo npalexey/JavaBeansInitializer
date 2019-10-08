@@ -19,6 +19,6 @@ public class ThirdSecurityBean {
 
     @Filter
     public void filter() {
-        logger.info(requestContext.getSecurityData() + " And this from third.");
+        logger.info(requestContext.getSecurityInfo() + " And this from third.");
     }
 }

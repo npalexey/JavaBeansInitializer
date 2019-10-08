@@ -17,7 +17,7 @@ public class FifthSecurityBean {
 
     @Filter
     public void filter() {
-        logger.info(requestContext.getSecurityData() + " And this from fifth.");
+        logger.info(requestContext.getSecurityInfo() + " And this from fifth.");
     }
 }
 

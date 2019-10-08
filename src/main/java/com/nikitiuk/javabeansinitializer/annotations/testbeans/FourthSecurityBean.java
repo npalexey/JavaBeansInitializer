@@ -19,6 +19,6 @@ public class FourthSecurityBean {
 
     @Filter
     public void filter() {
-        logger.info(requestContext.getSecurityData() + " And this from fourth.");
+        logger.info(requestContext.getSecurityInfo() + " And this from fourth.");
     }
 }

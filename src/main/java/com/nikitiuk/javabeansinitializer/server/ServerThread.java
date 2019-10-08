@@ -30,7 +30,9 @@ public class ServerThread extends Thread {
                 Request request = HttpUtils.readRequest(inputStream);
                 MethodCaller methodCaller = new MethodCaller();
                 Object response = methodCaller.callRequestedMethod(request);
-                if (response instanceof Response) {
+                if(request.getRequestContext().getAbortResponse() != null) {
+                    //TODO: finish returning abortResponse from auth.
+                } else if (response instanceof Response) {
                     for (String header : ((Response) response).getHeaders()) {
                         outBufferedClient.write(header.getBytes());
                     }
