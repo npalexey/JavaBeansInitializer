@@ -6,14 +6,12 @@ import java.util.List;
 public class InfoResponse implements Response {
 
     private List<String> headers;
-    private BufferedInputStream body;
 
     private InfoResponse() {
     }
 
-    public InfoResponse(List<String> headers, BufferedInputStream body) {
+    public InfoResponse(List<String> headers) {
         this.headers = headers;
-        this.body = body;
     }
 
     @Override
@@ -23,14 +21,5 @@ public class InfoResponse implements Response {
 
     public void setHeaders(List<String> headers) {
         this.headers = headers;
-    }
-
-    @Override
-    public BufferedInputStream getBody() {
-        return body;
-    }
-
-    public void setBody(BufferedInputStream body) {
-        this.body = body;
     }
 }

@@ -142,8 +142,8 @@ public class MethodCaller {
             } else if(parameter.isAnnotationPresent(Context.class)) {
                 paramList.add(request.getRequestContext());
             } else if(method.isAnnotationPresent(Consumes.class) &&
-                    Arrays.asList(method.getAnnotation(Consumes.class).value()).contains(MimeType.APPLICATION_JSON.mimeTypeName()) &&
-                    request.getHeaders().containsValue(MimeType.APPLICATION_JSON.mimeTypeName())){
+                    Arrays.asList(method.getAnnotation(Consumes.class).value()).contains(MimeType.APPLICATION_JSON) &&
+                    request.getHeaders().containsValue(MimeType.APPLICATION_JSON)){
                 ObjectMapper objectMapper = new ObjectMapper();
                 paramList.add(objectMapper.readValue(new String(request.getBody().get("JsonArray")), parameter.getType()));
             } else {

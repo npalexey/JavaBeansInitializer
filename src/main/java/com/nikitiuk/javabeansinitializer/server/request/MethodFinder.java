@@ -18,14 +18,14 @@ public class MethodFinder {
             if (beanClass.isAnnotationPresent(Path.class)) {
                 String urlControllerPath, urlMethodPath;
                 if (StringUtils.countMatches(url, "/") > 1) {
-                    urlControllerPath = StringUtils.substring(url, 0, StringUtils.indexOf(url, "/", 1))/*url.substring(0, url.indexOf("/", 1))*/;
-                    urlMethodPath = StringUtils.substring(url, StringUtils.indexOf(url, "/", 1))/*url.substring(url.indexOf("/", 1))*/;
+                    urlControllerPath = StringUtils.substring(url, 0, StringUtils.indexOf(url, "/", 1));
+                    urlMethodPath = StringUtils.substring(url, StringUtils.indexOf(url, "/", 1));
                 } else {
                     urlControllerPath = url;
                     urlMethodPath = null;
                 }
                 String controllerPath = beanClass.getAnnotation(Path.class).value();
-                if (StringUtils.equalsIgnoreCase(controllerPath, urlControllerPath)/*.equals(urlControllerPath)*/) {
+                if (StringUtils.equalsIgnoreCase(controllerPath, urlControllerPath)) {
                     for (Method method : beanClass.getDeclaredMethods()) {
                         method.setAccessible(true);
                         ifCertainHttp:

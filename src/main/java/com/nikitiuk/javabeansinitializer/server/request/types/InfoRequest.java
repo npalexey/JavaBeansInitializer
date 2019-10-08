@@ -48,9 +48,4 @@ public class InfoRequest implements Request {
     public Map<String, String> getHeaders() {
         return headers;
     }
-
-    /*@Override
-    public List<File> getAttachments() {
-        return new ArrayList<>();
-    }*/
 }

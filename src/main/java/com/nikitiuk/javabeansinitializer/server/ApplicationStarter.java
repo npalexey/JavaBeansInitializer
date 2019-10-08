@@ -7,12 +7,9 @@ public class ApplicationStarter {
 
     private static MultiThreadedServer server;
 
-    public static void startApp(int port, String packageName/*Class<?> appStarterClass*/) {
-        ApplicationCustomContext applicationCustomContext = new ContextInitializer().initializeContext(
-                packageName
-                /*appStarterClass.getPackage().getName()*/
-                /*"com.nikitiuk.javabeansinitializer.annotations"*/);
-        server = new MultiThreadedServer(port/*Integer.parseInt(args[0])*/);
+    public static void startApp(int port, String packageName) {
+        ApplicationCustomContext applicationCustomContext = new ContextInitializer().initializeContext(packageName);
+        server = new MultiThreadedServer(port);
         new Thread(server).start();
     }
 

@@ -49,15 +49,10 @@ public class RequestDigester {
     }
 
     private RequestMethod getRequestMethod(String firstHeaderLine) {
-        /*StringTokenizer tokenizer = new StringTokenizer(firstHeaderLine, " ");
-        return RequestMethod.valueOf(tokenizer.nextToken());*/
         return RequestMethod.valueOf(firstHeaderLine.split(" ", 2)[0]);
     }
 
     private String getUrl(String firstHeaderLine) {
-        /*StringTokenizer tokenizer = new StringTokenizer(firstHeaderLine, " ");
-        tokenizer.nextToken();
-        return tokenizer.nextToken();*/
         return firstHeaderLine.split(" ", 3)[1];
     }
 
@@ -70,18 +65,18 @@ public class RequestDigester {
                 StringTokenizer tokenizer = new StringTokenizer(line, " ");
                 tokenizer.nextToken();
                 contentType = tokenizer.nextToken().replaceAll(";", "").trim();
-                if (contentType.equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName())) {
+                if (contentType.equals(MimeType.MULTIPART_FORM_DATA)) {
                     boundary = "--" + tokenizer.nextToken().substring(9).replaceAll("\r\n", "");   //'boundary=' - 9 chars
-                } else if (!contentType.equals(MimeType.APPLICATION_JSON.mimeTypeName())){
+                } else if (!contentType.equals(MimeType.APPLICATION_JSON)){
                     throw new RuntimeException("Cannot parse other types of body yet");
                 }
             } else if (line.startsWith("Content-Length")) {
                 contentLength = Integer.parseInt(line.substring(16).replaceAll("\r\n", ""));   //'Content-Length: ' - 16 chars
             }
         }
-        if (contentType.equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && !boundary.equals("")) {
+        if (contentType.equals(MimeType.MULTIPART_FORM_DATA) && !boundary.equals("")) {
             return parseMultipartBody(boundary, bis);
-        } else if (contentType.equals(MimeType.APPLICATION_JSON.mimeTypeName())){
+        } else if (contentType.equals(MimeType.APPLICATION_JSON)){
             return parseJsonBody(contentLength, bis);
         } else {
             throw new RuntimeException("Cannot parse other types of body yet");
@@ -91,9 +86,9 @@ public class RequestDigester {
     private Map<String, byte[]> parseContentRequestBody(Map<String, String> headersMap, BufferedInputStream bis) throws IOException {
         List<String> contentTypeAndBoundary = getContentTypeAndBoundaryFromHeader(headersMap.get("Content-Type"));
         int contentLength = Integer.parseInt(headersMap.get("Content-Length"));
-        if (contentTypeAndBoundary.get(0).equals(MimeType.MULTIPART_FORM_DATA.mimeTypeName()) && contentTypeAndBoundary.size() == 2/*StringUtils.isNotBlank(boundary)*/) {
+        if (contentTypeAndBoundary.get(0).equals(MimeType.MULTIPART_FORM_DATA) && contentTypeAndBoundary.size() == 2) {
             return parseMultipartBody(contentTypeAndBoundary.get(1), bis);
-        } else if (contentTypeAndBoundary.get(0).equals(MimeType.APPLICATION_JSON.mimeTypeName())){
+        } else if (contentTypeAndBoundary.get(0).equals(MimeType.APPLICATION_JSON)){
             return parseJsonBody(contentLength, bis);
         } else {
             throw new RuntimeException("Cannot parse other types of body yet");
@@ -153,9 +148,9 @@ public class RequestDigester {
             while (true) {
                 byte[] nextByteLine = readLine(bis);
                 nextLine = new String(nextByteLine);
-                if (Arrays.equals(nextByteLine, byteBoundary)/*nextLine.equals(boundary)*/) {
+                if (Arrays.equals(nextByteLine, byteBoundary)) {
                     break;
-                } else if (Arrays.equals(nextByteLine, byteFinalBoundary)/*nextLine.equals(finalBoundary)*/) {
+                } else if (Arrays.equals(nextByteLine, byteFinalBoundary)) {
                     reachedFinalBoundary = true;
                     break;
                 }
@@ -175,9 +170,6 @@ public class RequestDigester {
         logger.info(String.format("%d bytes of request's json body were read.", bytesRead));
         byteArrayOutputStream.write("{\n".getBytes());
         byteArrayOutputStream.write(buffer);
-        /*while ((bytesRead = bis.read(buffer)) != -1) {
-            byteArrayOutputStream.write(buffer, 0, bytesRead);
-        }*/
         Map<String, byte[]> body = new HashMap<>();
         body.put("JsonArray", byteArrayOutputStream.toByteArray());
         byteArrayOutputStream.close();
@@ -205,7 +197,7 @@ public class RequestDigester {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         int nextByte;
         StringBuilder stringBuilder = new StringBuilder();
-        while ((nextByte = bis.read()) != 10 /*read = (char)nextByte) != '\n'*/) {
+        while ((nextByte = bis.read()) != 10) {      // !='\n'
             stringBuilder.append((char) nextByte);
             byteArrayOutputStream.write(nextByte);
         }
@@ -217,16 +209,10 @@ public class RequestDigester {
     private String readLineIntoString(BufferedInputStream bis) throws IOException {
         int nextByte;
         StringBuilder stringBuilder = new StringBuilder();
-        while ((nextByte = bis.read()) != 10 /*read = (char)nextByte) != '\n'*/) {
+        while ((nextByte = bis.read()) != 10) {
             stringBuilder.append((char) nextByte);
         }
         stringBuilder.append("\n");
         return stringBuilder.toString();
-        /*byte[] line = readLine(bis);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int b : line) {
-            stringBuilder.append((char) b);
-        }
-        return stringBuilder.toString();*/
     }
 }

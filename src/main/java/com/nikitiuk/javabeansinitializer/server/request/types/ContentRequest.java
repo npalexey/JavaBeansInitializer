@@ -57,9 +57,4 @@ public class ContentRequest implements Request {
     public Map<String, byte[]> getBody() {
         return body;
     }
-
-    /*@Override
-    public List<File> getAttachments() {
-        return null;
-    }*/
 }

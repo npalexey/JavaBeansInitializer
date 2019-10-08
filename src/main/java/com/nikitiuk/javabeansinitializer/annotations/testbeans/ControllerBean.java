@@ -53,7 +53,7 @@ public class ControllerBean {
         logger.info("That's string from formDataParam : " + name);
         logger.info("That's double from formDataParam : " + value);
         logger.info("And that's context injected as param : " + requestContext.getSecurityData());
-        ResponseBuilder responseBuilder = new ResponseBuilder(ResponseCode.HTTP_200_OK, MimeType.TEXT_HTML.mimeTypeName(),
+        ResponseBuilder responseBuilder = new ResponseBuilder(ResponseCode.HTTP_200_OK, MimeType.TEXT_HTML,
                 "<b>HTTPServer First Attempt.</b>".getBytes().length);
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new ByteArrayInputStream("<b>HTTPServer First Attempt.</b>".getBytes()));
         responseBuilder.addBody(bufferedInputStream);

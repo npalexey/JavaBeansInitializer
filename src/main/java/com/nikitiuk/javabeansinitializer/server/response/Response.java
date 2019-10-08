@@ -7,5 +7,7 @@ public interface Response {
 
     List<String> getHeaders();
 
-    BufferedInputStream getBody();
+    default BufferedInputStream getBody() {
+        return null;
+    };
 }

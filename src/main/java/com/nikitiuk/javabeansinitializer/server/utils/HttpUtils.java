@@ -15,26 +15,7 @@ final public class HttpUtils {
     }
 
     public static Request readRequest(InputStream inputStream) throws IOException {
-        //BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         BufferedInputStream bis = new BufferedInputStream(inputStream);
-
-        /*System.out.println(bufferedReader.readLine());
-        System.out.println(bufferedReader.readLine());
-
-
-        byte[] bytes = new byte[100];
-        int read = bis.read(bytes);
-        System.out.println("Read: " + read);
-        System.out.println(String.valueOf(bytes));
-        System.out.println(bufferedReader.readLine());*/
         return new RequestDigester().parse(bis);
-    }
-
-    public static void invoke(Request request) {
-        
-    }
-
-    public static void sendResponse(Request request) {
-
     }
 }
