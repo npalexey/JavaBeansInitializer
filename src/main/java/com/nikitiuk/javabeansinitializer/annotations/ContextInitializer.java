@@ -27,10 +27,10 @@ public class ContextInitializer {
         applicationCustomContext.setBeanContainer(createBeans());
         applicationCustomContext.setControllerContainer(createControllers());
         wireValuesAndOtherBeans(applicationCustomContext.getListenerContainer(), applicationCustomContext.getBeanContainer());
-        invokeCertainMethodByGivenAnnotation(applicationCustomContext.getListenerContainer(), ContextInitialized.class);
         wireValuesAndOtherBeans(applicationCustomContext.getSecurityContainer(), applicationCustomContext.getBeanContainer());
         wireValuesAndOtherBeans(applicationCustomContext.getBeanContainer(), applicationCustomContext.getBeanContainer());
         wireValuesAndOtherBeans(applicationCustomContext.getControllerContainer(), applicationCustomContext.getBeanContainer());
+        invokeCertainMethodByGivenAnnotation(applicationCustomContext.getListenerContainer(), ContextInitialized.class);
         return applicationCustomContext;
     }
 
