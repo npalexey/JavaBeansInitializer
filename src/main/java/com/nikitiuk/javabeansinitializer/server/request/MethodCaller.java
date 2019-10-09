@@ -42,6 +42,7 @@ public class MethodCaller {
             requestContext.setSecurityInfo("");
         }
         doAuthManagement();
+        requestContext.setMethod(method);
         request.setRequestContext(requestContext);
         if(request.getRequestContext().getAbortResponse() != null) {
             return null;
