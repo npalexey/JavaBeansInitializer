@@ -36,14 +36,14 @@ public class MethodCaller {
         applicationCustomContext = ApplicationCustomContext.getApplicationCustomContext();
         requestContext = new RequestContext();
         Method method = MethodFinder.findRequestedMethod(request.getHttpMethod(), request.getUrl());
+        requestContext.setMethod(method);
         if (checkForAuthHeader(request.getHeaders())) {
             requestContext.setSecurityInfo(request.getHeaders().get("Authorization"));
         } else {
             requestContext.setSecurityInfo("");
         }
-        doAuthManagement();
-        requestContext.setMethod(method);
         request.setRequestContext(requestContext);
+        doAuthManagement();
         if(request.getRequestContext().getAbortResponse() != null) {
             return null;
         }
