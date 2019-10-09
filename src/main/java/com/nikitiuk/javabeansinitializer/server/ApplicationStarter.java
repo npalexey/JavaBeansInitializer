@@ -17,7 +17,7 @@ public class ApplicationStarter {
         server.stopServer();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         startApp(7070, "com.nikitiuk.javabeansinitializer.annotations");
-    }
+    }*/
 }
