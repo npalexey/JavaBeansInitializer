@@ -3,6 +3,8 @@ package com.nikitiuk.javabeansinitializer.server;
 import com.nikitiuk.javabeansinitializer.server.request.MethodCaller;
 import com.nikitiuk.javabeansinitializer.server.request.types.Request;
 import com.nikitiuk.javabeansinitializer.server.response.Response;
+import com.nikitiuk.javabeansinitializer.server.response.ResponseBuilder;
+import com.nikitiuk.javabeansinitializer.server.response.ResponseSender;
 import com.nikitiuk.javabeansinitializer.server.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Collections;
 
 public class ServerThread extends Thread {
 
@@ -30,17 +33,11 @@ public class ServerThread extends Thread {
                 Request request = HttpUtils.readRequest(inputStream);
                 MethodCaller methodCaller = new MethodCaller();
                 Object response = methodCaller.callRequestedMethod(request);
+                ResponseSender responseSender = new ResponseSender();
                 if(request.getRequestContext().getAbortResponse() != null) {
-                    //TODO: finish returning abortResponse from auth.
+                    responseSender.sendResponse(request.getRequestContext().getAbortResponse(), outBufferedClient);
                 } else if (response instanceof Response) {
-                    for (String header : ((Response) response).getHeaders()) {
-                        outBufferedClient.write(header.getBytes());
-                    }
-                    int count;
-                    byte[] buffer = new byte[8192]; // or 4096, or more
-                    while ((count = ((Response) response).getBody().read(buffer)) > 0) {
-                        outBufferedClient.write(buffer, 0, count);
-                    }
+                    responseSender.sendResponse((Response) response, outBufferedClient);
                 }
             } catch (Exception e) {
                 logger.error("Error while receiving request.", e);
